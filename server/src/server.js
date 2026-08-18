@@ -1,16 +1,17 @@
-const express = require("express");
+const app = require("./app");
 const connectDB = require("./config/db");
-const env = require("./config/env");
+const Department = require("./models/Departments");
 
-const app = express();
+const PORT = 3000;
 
 const startServer = async () => {
   try {
     await connectDB();
 
-    app.listen(env.PORT, () => {
-      console.log(`Server running on port ${env.PORT}`);
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
     });
+
   } catch (error) {
     console.error(error.message);
   }
