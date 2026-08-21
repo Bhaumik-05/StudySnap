@@ -27,6 +27,24 @@ export const getDepartmentsService = async () => {
     return (await Department.find()).toSorted((a, b) => a.deptId - b.deptId);
 };
 
+export const updateDepartmentService = async (deptId, deptName) => {
+
+    const department = await Department.findOne({
+        deptId: Number(deptId)
+    });
+
+    if (!department) {
+        const error = new Error("Department not found");
+        error.statusCode = 404;
+        throw error;
+    }
+
+    department.deptName = deptName;
+
+    await department.save();
+
+    return department;
+};
 export const deleteDepartmentService = async (deptId) => {
     const department = await Department.findOne({
         deptId: Number(deptId)
