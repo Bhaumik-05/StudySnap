@@ -4,11 +4,13 @@ const department = new Schema(
     {
         deptId: {
             type: Number,
-            required: true
+            required: true,
+            unique: true
         },
         deptName: {
             type: String,
-            required: true
+            required: true,
+            unique: true
         }
     },
     {
