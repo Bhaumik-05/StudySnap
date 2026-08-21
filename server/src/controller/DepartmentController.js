@@ -1,4 +1,4 @@
-import { createDepartmentService, getDepartmentsService } from "../services/DepartmentService.js";
+import { createDepartmentService, getDepartmentsService, deleteDepartmentService } from "../services/DepartmentService.js";
 export const createDepartment = async (req, res) => {
     try {
         const { deptId, deptName } = req.body;
@@ -17,3 +17,20 @@ export const getDepartments = async (req, res) => {
         res.status(error.statusCode || 500).json({ message: error.message || "Internal server error" });
     }
 }
+
+export const deleteDepartment = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        await deleteDepartmentService(id);
+
+        return res.status(200).json({
+            message: "Department deleted successfully"
+        });
+
+    } catch (error) {
+        return res.status(error.statusCode || 500).json({
+            message: error.message || "Internal server error"
+        });
+    }
+};

@@ -11,13 +11,14 @@ export const createDepartmentService = async (deptId, deptName) => {
         error.statusCode = 400;
         throw error;
     }
-    const existingDepartment = await Department.findOne({ $or: [{ deptId }, { deptName }] });
+    const normalizedDeptName = deptName.trim().toLowerCase();
+    const existingDepartment = await Department.findOne({ $or: [{ deptId }, { deptName: normalizedDeptName }] });
     if (existingDepartment) {
         const error = new Error("Department with this ID or name already exists");
         error.statusCode = 409;
         throw error;
     }
-    const department = new Department({ deptId, deptName });
+    const department = new Department({ deptId, deptName: normalizedDeptName });
     await department.save();
     return department;
 };
@@ -25,3 +26,17 @@ export const createDepartmentService = async (deptId, deptName) => {
 export const getDepartmentsService = async () => {
     return (await Department.find()).toSorted((a, b) => a.deptId - b.deptId);
 };
+
+export const deleteDepartmentService = async (deptId) => {
+    const department = await Department.findOne({
+        deptId: Number(deptId)
+    });
+    if (!department) {
+        const error = new Error("Department not found");
+        error.statusCode = 404;
+        throw error;
+    }
+    await Department.deleteOne({
+        deptId: Number(deptId)
+    });
+}
