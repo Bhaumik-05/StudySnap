@@ -5,7 +5,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use("/api/departments", departmentRoutes);
+app.use("/departments", departmentRoutes);
 
 app.get("/", (req, res) => {
   res.json({
