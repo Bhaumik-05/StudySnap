@@ -5,6 +5,7 @@ import authRoutes from "./routes/authRoutes.js";
 import errorMiddleware from "./middleware/errorMiddleware.js";
 import UserRoutes from "./routes/UserRoutes.js";
 import subjectRoutes from "./routes/SubjectRoutes.js";
+import noteRoutes from "./routes/NoteRoutes.js";
 const app = express();
 
 app.use(cors());
@@ -17,7 +18,10 @@ app.get("/", (req, res) => {
 });
 app.use("/auth", authRoutes);
 app.use("/users", UserRoutes);
-app.use(errorMiddleware);
 app.use("/departments", departmentRoutes);
 app.use("/subjects", subjectRoutes);
+app.use("/notes", noteRoutes);
+
+//place the error middleware at the end, after all routes
+app.use(errorMiddleware);
 export default app;

@@ -20,7 +20,9 @@ const note = new Schema(
         },
 
         tag: {
-            type: [String]
+            type: [String],
+            enum: ['BLUE', 'RED', 'YELLOW'],
+            default: []
         },
 
         status: {
@@ -54,7 +56,7 @@ const note = new Schema(
             type: String
         },
 
-        pdfPath: {
+        pdfUrl: {
             type: String,
             required: true
         },
@@ -76,6 +78,10 @@ const note = new Schema(
 
         approvedBy: {
             type: String
+        },
+        pdfPublicId: {
+            type: String,
+            required: true
         }
     },
     {
