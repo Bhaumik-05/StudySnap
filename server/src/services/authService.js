@@ -30,13 +30,20 @@ const registerUser = async (userData) => {
         throw error;
     }
 
-    // Check if the department exists
+    // Only check for a department if the user being registered is NOT an ADMIN
+    if (role !== 'ADMIN') {
+      if (!deptId) {
+        const error = new Error("Department ID is required for non-admin users");
+        error.statusCode = 400;
+        throw error;
+      }
 
-    const department = await Department.findOne({ deptId : Number(deptId) });
-    if (!department) {
+      const department = await Department.findOne({ deptId: Number(deptId) });
+      if (!department) {
         const error = new Error("Department does not exist");
         error.statusCode = 400;
         throw error;
+      }
     }
 
     // Hash the password

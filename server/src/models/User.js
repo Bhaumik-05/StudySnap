@@ -39,7 +39,9 @@ const userSchema = new Schema(
       type: Number,
       min: 1,
       max: 8,
-      required : true, 
+      required: function () {
+        return this.role !== "ADMIN";
+        },
     },
 
     mobile: {
@@ -49,7 +51,9 @@ const userSchema = new Schema(
 
     deptId: {
         type: Number,
-        required: true,
+        required: function () {
+        return this.role !== "ADMIN";
+        },
     },
   },
   {
