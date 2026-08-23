@@ -1,12 +1,12 @@
 import {
     createNoteService, getApprovedNotesService,
-    getApprovedNotesByIdService, downloadNoteService, assignNoteTagService , searchNotesService
+    getApprovedNotesByIdService, downloadNoteService, assignNoteTagService, searchNotesService
 } from "../services/noteService.js";
 
 export const createNote = async (req, res) => {
     try {
         const {
-            title, description, tag,
+            title, description,
             semester, deptId, subjectId,
             uploadedBy,
         } = req.body;
@@ -19,7 +19,6 @@ export const createNote = async (req, res) => {
             file: req.file,
             title,
             description,
-            tag,
             semester,
             deptId,
             subjectId,

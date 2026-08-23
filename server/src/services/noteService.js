@@ -127,28 +127,6 @@ export const createNoteService = async ({
 
     const noteId = lastNote ? lastNote.noteId + 1 : 1;
 
-
-    // Prepare single tag
-    let noteTag = null;
-
-
-    if (tag) {
-        noteTag = tag.trim().toLowerCase();
-
-
-        const allowedTags = ["red", "blue", "yellow"];
-
-
-        if (!allowedTags.includes(noteTag)) {
-            const error = new Error(
-                "Tag can only be red, blue or yellow"
-            );
-
-
-            error.statusCode = 400;
-            throw error;
-        }
-    }
     // 4. Create Note
     try {
         const note = await Note.create({
@@ -159,10 +137,6 @@ export const createNoteService = async ({
 
 
             description,
-
-
-            tag: tags,
-
 
             semester: Number(semester),
 
