@@ -297,13 +297,17 @@ export const downloadNoteService = async (noteId, userId) => {
     };
 };
 
+export const getUserUploadHistoryService = async (userEmail) => {
 
-export const getUserUploadHistoryService = async (userId) => {
+    console.log("SERVICE USER EMAIL:", userEmail);
+
     const notes = await Note.find({
-        uploadedBy: userId,
+        uploadedBy: userEmail,
     }).sort({
         uploadDate: -1,
     });
+
+    console.log("MONGODB RESULT:", notes);
 
     return notes;
 };
