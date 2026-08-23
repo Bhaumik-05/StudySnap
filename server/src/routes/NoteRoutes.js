@@ -2,7 +2,7 @@ import express from "express";
 import upload from "../middleware/upload.js";
 import {
     createNote, getApprovedNotes, getPendingNotes,
-    getApprovedNotesById
+    getApprovedNotesById, getRejectedNotes
 } from "../controller/NoteController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 import roleMiddleware from "../middleware/roleMiddleware.js";
@@ -34,4 +34,10 @@ router.get(
     getApprovedNotesById
 );
 
+router.get(
+    "/rejected",
+    authMiddleware,
+    roleMiddleware("ADMIN"),
+    getRejectedNotes
+);
 export default router;

@@ -221,8 +221,15 @@ export const getPendingNotesService = async () => {
 };
 
 export const getApprovedNotesByIdService = async (noteId) => {
+    if (!noteId || isNaN(noteId)) {
+        return res.status(400).json({
+            success: false,
+            message: "Valid noteId is required",
+        });
+    }
     const note = await Note.findOne({
         noteId: (Number(noteId)),
+        status: "approved",
     });
 
     if (!note) {
@@ -231,4 +238,14 @@ export const getApprovedNotesByIdService = async (noteId) => {
         throw error;
     }
     return note;
+};
+
+export const getRejectedNotesService = async () => {
+    const notes = await Note.find({
+        status: "rejected",
+    }).sort({
+        uploadDate: -1,
+    });
+
+    return notes;
 };
