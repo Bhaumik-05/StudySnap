@@ -32,11 +32,10 @@ export const createNote = async (req, res) => {
 
     } catch (error) {
         console.error("Create note failed:", error);
-
-        return res.status(503).json({
+        res.status(error.statusCode || 500).json({
             success: false,
-            message: "Something went wrong",
-            error: error.message,
+            message: error.message || "Internal server error",
+            error: error.stack || "No stack trace available",
         });
     }
 };

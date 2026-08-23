@@ -187,7 +187,9 @@ const createNoteService = async ({
 
         // Re-throw the original database error so that
         // the controller/global error handler can handle it.
-        throw error;
+        const rethrowError = new Error("Something went wrong");
+        rethrowError.statusCode = 503;
+        throw rethrowError;
     }
 
 };
