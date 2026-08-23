@@ -33,9 +33,9 @@ export const createNote = async (req, res) => {
     } catch (error) {
         console.error("Create note failed:", error);
 
-        return res.status(500).json({
+        return res.status(503).json({
             success: false,
-            message: "Failed to create note",
+            message: "Something went wrong",
             error: error.message,
         });
     }
