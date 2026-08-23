@@ -1,6 +1,6 @@
 import {
     createNoteService, getApprovedNotesService,
-    getApprovedNotesByIdService, downloadNoteService, assignNoteTagService
+    getApprovedNotesByIdService, downloadNoteService
 } from "../services/noteService.js";
 
 export const createNote = async (req, res) => {
@@ -110,6 +110,76 @@ export const downloadNote = async (req, res, next) => {
         console.error("Download note failed:", error);
 
         next(error);
+    }
+};
+
+export const searchNotes = async (
+    req,
+    res,
+    next
+) => {
+
+    try {
+
+        const allowedQueryParams = [
+            "semester",
+            "deptId",
+            "subjectId",
+            "tag",
+            "search",
+            "page",
+            "limit",
+        ];
+
+        const receivedQueryParams = Object.keys(req.query);
+
+        const invalidParams = receivedQueryParams.filter(
+            (param) => !allowedQueryParams.includes(param)
+        );
+
+        if (invalidParams.length > 0) {
+            const error = new Error(
+                `Invalid query parameter(s): ${invalidParams.join(", ")}`
+            );
+
+            error.statusCode = 400;
+
+            throw error;
+        }
+
+        const {
+            semester,
+            deptId,
+            subjectId,
+            tag,
+            search,
+            page,
+            limit,
+        } = req.query;
+
+
+        const result =
+            await searchNotesService({
+                semester,
+                deptId,
+                subjectId,
+                tag,
+                search,
+                page,
+                limit,
+            });
+
+
+        res.status(200).json({
+            success: true,
+            data: result.notes,
+            pagination: result.pagination,
+        });
+
+    } catch (error) {
+
+        next(error);
+
     }
 };
 

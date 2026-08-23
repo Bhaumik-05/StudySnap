@@ -2,7 +2,7 @@ import express from "express";
 import upload from "../middleware/upload.js";
 import {
     createNote, getApprovedNotes,
-    getApprovedNotesById, downloadNote, assignNoteTag
+    getApprovedNotesById, downloadNote
 } from "../controller/NoteController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 import roleMiddleware from "../middleware/roleMiddleware.js";
@@ -12,13 +12,6 @@ const router = express.Router();
 router.get(
     "/",
     getApprovedNotes
-);
-
-
-router.get(
-    "/tagged",
-    authMiddleware,
-    getUserTaggedNotes
 );
 
 router.get(
@@ -37,6 +30,11 @@ router.patch(
 router.get(
     "/:noteId",
     getApprovedNotesById
+);
+
+router.get(
+    "/",
+    searchNotes
 );
 
 export default router;
