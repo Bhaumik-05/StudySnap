@@ -23,15 +23,6 @@ router.get(
 );
 
 router.get(
-    "/:noteId/download",
-    authMiddleware,
-    downloadNote
-);
-router.get(
-    "/:noteId",
-    getApprovedNotesById
-);
-router.get(
     "/pending",
     authMiddleware,
     roleMiddleware("ADMIN"),
@@ -42,6 +33,15 @@ router.get(
     authMiddleware,
     roleMiddleware("ADMIN"),
     getRejectedNotes
+);
+router.get(
+    "/:noteId/download",
+    authMiddleware,
+    downloadNote
+);
+router.get(
+    "/:noteId",
+    getApprovedNotesById
 );
 
 export default router;

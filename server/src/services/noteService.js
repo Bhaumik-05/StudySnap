@@ -221,22 +221,26 @@ export const getPendingNotesService = async () => {
 };
 
 export const getApprovedNotesByIdService = async (noteId) => {
-    if (!noteId || isNaN(noteId)) {
-        return res.status(400).json({
-            success: false,
-            message: "Valid noteId is required",
-        });
+
+    console.log("Service noteId:", noteId);
+
+    if (!noteId || isNaN(Number(noteId))) {
+        const error = new Error("Valid noteId is required");
+        error.statusCode = 400;
+        throw error;
     }
+
     const note = await Note.findOne({
-        noteId: (Number(noteId)),
+        noteId: Number(noteId),
         status: "approved",
     });
 
     if (!note) {
-        const error = new Error("Note not found");
+        const error = new Error("Approved note not found");
         error.statusCode = 404;
         throw error;
     }
+
     return note;
 };
 
@@ -291,4 +295,15 @@ export const downloadNoteService = async (noteId, userId) => {
         fileName: `${updatedNote.title}.pdf`,
         downloadCount: updatedNote.downloadCount,
     };
+};
+
+
+export const getUserUploadHistoryService = async (userId) => {
+    const notes = await Note.find({
+        uploadedBy: userId,
+    }).sort({
+        uploadDate: -1,
+    });
+
+    return notes;
 };

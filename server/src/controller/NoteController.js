@@ -77,9 +77,9 @@ export const getPendingNotes = async (req, res) => {
     } catch (error) {
         console.error("Get pending notes failed:", error);
 
-        return res.status(500).json({
+        return res.status(error.statusCode || 500).json({
             success: false,
-            message: "Failed to fetch pending notes",
+            message: error.message || "Failed to fetch pending notes",
         });
     }
 };
@@ -87,18 +87,25 @@ export const getPendingNotes = async (req, res) => {
 export const getApprovedNotesById = async (req, res) => {
     try {
         const noteId = req.params.noteId;
+
+        console.log("Requested noteId:", noteId);
+
         const note = await getApprovedNotesByIdService(noteId);
+
         return res.status(200).json({
             success: true,
             data: note,
         });
+
     } catch (error) {
+        console.error("Get approved note by ID failed:", error);
+
         return res.status(error.statusCode || 500).json({
             success: false,
             message: error.message || "Failed to fetch note by ID",
         });
     }
-}
+};
 
 export const getRejectedNotes = async (req, res, next) => {
     try {
