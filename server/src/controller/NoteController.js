@@ -1,6 +1,6 @@
 import {
     createNoteService, getApprovedNotesService,
-    getApprovedNotesByIdService, downloadNoteService
+    getApprovedNotesByIdService, downloadNoteService, assignNoteTagService , searchNotesService
 } from "../services/noteService.js";
 
 export const createNote = async (req, res) => {
@@ -113,6 +113,31 @@ export const downloadNote = async (req, res, next) => {
     }
 };
 
+export const assignNoteTag = async (req, res, next) => {
+    try {
+        const { noteId } = req.params;
+        const { tag } = req.body;
+
+        // Get user from JWT
+        const userId = req.user.userId;
+
+        const result = await assignNoteTagService(
+            noteId,
+            userId,
+            tag
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: "Tag assigned successfully",
+            data: result,
+        });
+
+    } catch (error) {
+        console.error("Assign note tag failed:", error);
+        next(error);
+    }
+};
 export const searchNotes = async (
     req,
     res,
@@ -180,31 +205,5 @@ export const searchNotes = async (
 
         next(error);
 
-    }
-};
-
-export const assignNoteTag = async (req, res, next) => {
-    try {
-        const { noteId } = req.params;
-        const { tag } = req.body;
-
-        // Get user from JWT
-        const userId = req.user.userId;
-
-        const result = await assignNoteTagService(
-            noteId,
-            userId,
-            tag
-        );
-
-        return res.status(200).json({
-            success: true,
-            message: "Tag assigned successfully",
-            data: result,
-        });
-
-    } catch (error) {
-        console.error("Assign note tag failed:", error);
-        next(error);
     }
 };
