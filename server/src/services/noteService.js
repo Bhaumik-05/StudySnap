@@ -3,6 +3,7 @@ import uploadPdf from "./cloudinaryService.js";
 import Department from "../models/Department.js";
 import Subject from "../models/Subject.js";
 import User from "../models/User.js";
+import cloudinary from "../config/cloudinary.js";
 
 const createNoteService = async ({
     file, title, description, tag, semester,
@@ -49,7 +50,23 @@ const createNoteService = async ({
         throw error;
     }
 
-    const existingDepartment = await Department.findOne({ deptId: Number(deptId) });
+    const departmentId = Number(deptId);
+    const subjectIdNumber = Number(subjectId);
+
+    if (!Number.isInteger(departmentId)) {
+        const error = new Error("Department ID must be a valid number");
+        error.statusCode = 400;
+        throw error;
+    }
+
+
+    if (!Number.isInteger(subjectIdNumber)) {
+        const error = new Error("Subject ID must be a valid number");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const existingDepartment = await Department.findOne({ deptId: departmentId });
     if (!existingDepartment) {
         const error = new Error("Department not found");
         error.statusCode = 404;
@@ -57,8 +74,8 @@ const createNoteService = async ({
     }
 
     const existingSubject = await Subject.findOne({
-        subjectId: Number(subjectId),
-        deptId: Number(deptId)
+        subjectId: subjectIdNumber,
+        deptId: departmentId
     });
 
     if (!existingSubject) {
@@ -112,35 +129,67 @@ const createNoteService = async ({
     tags = tags.map(currentTag => currentTag.toLowerCase());
 
     // 4. Create Note
-    const note = await Note.create({
-        noteId,
+    try {
+        const note = await Note.create({
+            noteId,
 
-        title,
+            title,
 
-        description,
+            description,
 
-        tag: tags,
+            tag: tags,
 
-        semester: Number(semester),
+            semester: Number(semester),
 
-        deptId: Number(deptId),
+            deptId: departmentId,
 
-        subjectId: Number(subjectId),
+            subjectId: subjectIdNumber,
 
-        uploadedBy,
+            uploadedBy,
 
-        pdfUrl: cloudinaryResult.secure_url,
+            pdfUrl: cloudinaryResult.secure_url,
 
-        pdfPublicId: cloudinaryResult.public_id,
+            pdfPublicId: cloudinaryResult.public_id,
 
-        status: "pending",
+            status: "pending",
 
-        downloadCount: 0,
+            downloadCount: 0,
 
-        uploadDate: new Date(),
-    });
+            uploadDate: new Date(),
+        });
 
-    return note;
+        return note;
+    }
+    catch (error) {
+        // If Cloudinary upload succeeded but MongoDB
+        // Note.create() failed, the PDF would otherwise
+        // remain in Cloudinary without a corresponding Note.
+        //
+        // Therefore, delete the uploaded PDF from Cloudinary
+        // to avoid an orphaned file.
+
+        try {
+            await cloudinary.uploader.destroy(
+                cloudinaryResult.public_id,
+                {
+                    resource_type: "raw"
+                }
+            );
+        } catch (cleanupError) {
+
+            // Log cleanup error, but keep the original
+            // database error as the main error.
+            console.error(
+                "Failed to cleanup Cloudinary file:",
+                cleanupError
+            );
+        }
+
+        // Re-throw the original database error so that
+        // the controller/global error handler can handle it.
+        throw error;
+    }
+
 };
 
 export default createNoteService;
