@@ -5,7 +5,9 @@ import Subject from "../models/Subject.js";
 import User from "../models/User.js";
 import cloudinary from "../config/cloudinary.js";
 
-const createNoteService = async ({
+
+
+export const createNoteService = async ({
     file, title, description, tag, semester,
     deptId, subjectId, uploadedBy, }) => {
     //error handling for  file
@@ -44,12 +46,16 @@ const createNoteService = async ({
         throw error;
     }
 
-    if (semester < 1 || semester > 8) {
-        const error = new Error("Semester must be between 1 and 8");
+    const semesterNumber = Number(semester);
+
+    if (!Number.isInteger(semesterNumber) ||
+        semesterNumber < 1 ||
+        semesterNumber > 8) {
+
+        const error = new Error("Semester must be an integer between 1 and 8");
         error.statusCode = 400;
         throw error;
     }
-
     const departmentId = Number(deptId);
     const subjectIdNumber = Number(subjectId);
 
@@ -194,4 +200,35 @@ const createNoteService = async ({
 
 };
 
-export default createNoteService;
+export const getApprovedNotesService = async () => {
+    const notes = await Note.find({
+        status: "approved",
+    }).sort({
+        approvedDate: -1,
+    });
+
+    return notes;
+};
+
+export const getPendingNotesService = async () => {
+    const notes = await Note.find({
+        status: "pending",
+    }).sort({
+        uploadDate: -1,
+    });
+
+    return notes;
+};
+
+export const getApprovedNotesByIdService = async (noteId) => {
+    const note = await Note.findOne({
+        noteId: (Number(noteId)),
+    });
+
+    if (!note) {
+        const error = new Error("Note not found");
+        error.statusCode = 404;
+        throw error;
+    }
+    return note;
+};

@@ -1,4 +1,7 @@
-import createNoteService from "../services/noteService.js";
+import {
+    createNoteService, getApprovedNotesService, getPendingNotesService,
+    getApprovedNotesByIdService
+} from "../services/noteService.js";
 
 export const createNote = async (req, res) => {
     try {
@@ -39,3 +42,60 @@ export const createNote = async (req, res) => {
         });
     }
 };
+
+export const getApprovedNotes = async (req, res) => {
+    try {
+        const notes = await getApprovedNotesService();
+
+        return res.status(200).json({
+            success: true,
+            count: notes.length,
+            data: notes,
+        });
+
+    } catch (error) {
+        console.error("Get approved notes failed:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to fetch approved notes",
+        });
+    }
+};
+
+
+export const getPendingNotes = async (req, res) => {
+    try {
+        const notes = await getPendingNotesService();
+
+        return res.status(200).json({
+            success: true,
+            count: notes.length,
+            data: notes,
+        });
+
+    } catch (error) {
+        console.error("Get pending notes failed:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to fetch pending notes",
+        });
+    }
+};
+
+export const getApprovedNotesById = async (req, res) => {
+    try {
+        const noteId = req.params.noteId;
+        const note = await getApprovedNotesByIdService(noteId);
+        return res.status(200).json({
+            success: true,
+            data: note,
+        });
+    } catch (error) {
+        return res.status(error.statusCode || 500).json({
+            success: false,
+            message: error.message || "Failed to fetch note by ID",
+        });
+    }
+}

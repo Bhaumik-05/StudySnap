@@ -1,6 +1,9 @@
 import express from "express";
 import upload from "../middleware/upload.js";
-import { createNote } from "../controller/NoteController.js";
+import {
+    createNote, getApprovedNotes, getPendingNotes,
+    getApprovedNotesById
+} from "../controller/NoteController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 import roleMiddleware from "../middleware/roleMiddleware.js";
 
@@ -12,6 +15,23 @@ router.post(
     roleMiddleware("FACULTY", "STUDENT"),
     upload.single("pdf"),
     createNote
+);
+
+router.get(
+    "/",
+    getApprovedNotes
+);
+
+router.get(
+    "/pending",
+    authMiddleware,
+    roleMiddleware("ADMIN"),
+    getPendingNotes
+);
+
+router.get(
+    "/:noteId",
+    getApprovedNotesById
 );
 
 export default router;
