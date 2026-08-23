@@ -311,3 +311,77 @@ export const getUserUploadHistoryService = async (userEmail) => {
 
     return notes;
 };
+
+export const updateNoteStatusService = async (
+    noteId,
+    status,
+    rejectionReason,
+    adminEmail
+) => {
+    // Validate noteId
+    if (!noteId || isNaN(Number(noteId))) {
+        const error = new Error("Valid noteId is required");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    // Validate status
+    const allowedStatuses = ["approved", "rejected"];
+
+    if (!allowedStatuses.includes(status)) {
+        const error = new Error(
+            "Status can only be approved or rejected"
+        );
+        error.statusCode = 400;
+        throw error;
+    }
+
+    // Find pending note
+    const note = await Note.findOne({
+        noteId: Number(noteId),
+        status: "pending",
+    });
+
+    if (!note) {
+        const error = new Error(
+            "Pending note not found or note has already been reviewed"
+        );
+        error.statusCode = 404;
+        throw error;
+    }
+
+    // If rejected, rejection reason is required
+    if (
+        status === "rejected" &&
+        (!rejectionReason || !rejectionReason.trim())
+    ) {
+        const error = new Error(
+            "Rejection reason is required when rejecting a note"
+        );
+        error.statusCode = 400;
+        throw error;
+    }
+
+    // Update status
+    note.status = status;
+
+    // If approved
+    if (status === "approved") {
+        note.approvedDate = new Date();
+        note.approvedBy = adminEmail;
+        note.rejectionReason = undefined;
+    }
+
+    // If rejected
+    if (status === "rejected") {
+        note.rejectionReason = rejectionReason.trim();
+
+        // Clear approval-related fields
+        note.approvedDate = undefined;
+        note.approvedBy = undefined;
+    }
+
+    await note.save();
+
+    return note;
+};

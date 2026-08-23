@@ -53,7 +53,12 @@ const note = new Schema(
         },
 
         rejectionReason: {
-            type: String
+            type: String,
+            trim : true,
+            required : function()
+            {
+                return this.status === "rejected"
+            }
         },
 
         pdfUrl: {

@@ -8,6 +8,7 @@ import subjectRoutes from "./routes/SubjectRoutes.js";
 import noteRoutes from "./routes/NoteRoutes.js";
 import cookieParser from "cookie-parser";
 import downloadHistoryRoutes from "./routes/downloadHistoryRoutes.js"
+import adminRoutes from "./routes/AdminRoutes.js";
 const app = express();
 
 app.use(cors());
@@ -25,6 +26,7 @@ app.use("/departments", departmentRoutes);
 app.use("/subjects", subjectRoutes);
 app.use("/notes", noteRoutes);
 app.use("/downloads", downloadHistoryRoutes)
+app.use("/admin", adminRoutes);
 
 //place the error middleware at the end, after all routes
 app.use(errorMiddleware);
