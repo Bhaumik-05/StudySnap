@@ -40,7 +40,7 @@ const userSchema = new Schema(
       min: 1,
       max: 8,
       required: function () {
-        return this.role !== "ADMIN";
+        return (this.role !== "ADMIN" && this.role !== "FACULTY");
         },
     },
 
