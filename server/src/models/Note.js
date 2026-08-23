@@ -19,12 +19,6 @@ const note = new Schema(
             type: String
         },
 
-        tag: {
-            type: [String],
-            enum: ['BLUE', 'RED', 'YELLOW'],
-            default: []
-        },
-
         status: {
             type: String,
             enum: ['pending', 'approved', 'rejected'],
@@ -54,9 +48,8 @@ const note = new Schema(
 
         rejectionReason: {
             type: String,
-            trim : true,
-            required : function()
-            {
+            trim: true,
+            required: function () {
                 return this.status === "rejected"
             }
         },

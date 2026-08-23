@@ -5,6 +5,7 @@ import Subject from "../models/Subject.js";
 import User from "../models/User.js";
 import cloudinary from "../config/cloudinary.js";
 import DownloadHistory from "../models/downloadHistory.js";
+import NoteTag from "../models/noteTag.js";
 
 
 export const createNoteService = async ({
@@ -108,32 +109,24 @@ export const createNoteService = async ({
         .select("noteId");
 
     const noteId = lastNote ? lastNote.noteId + 1 : 1;
-    // Prepare tags
-    let tags = [];
+
+    // Prepare single tag
+    let noteTag = null;
 
     if (tag) {
-        tags = Array.isArray(tag) ? tag : [tag];
-    }
+        noteTag = tag.trim().toLowerCase();
 
-    // Allowed tags
-    const allowedTags = ["red", "blue", "yellow"];
+        const allowedTags = ["red", "blue", "yellow"];
 
-    // Check every tag
-    for (const currentTag of tags) {
-
-        if (!allowedTags.includes(currentTag.toLowerCase())) {
+        if (!allowedTags.includes(noteTag)) {
             const error = new Error(
-                "Tags can only be red, blue or yellow"
+                "Tag can only be red, blue or yellow"
             );
 
             error.statusCode = 400;
             throw error;
         }
     }
-
-    // Convert tags to lowercase
-    tags = tags.map(currentTag => currentTag.toLowerCase());
-
     // 4. Create Note
     try {
         const note = await Note.create({
@@ -384,4 +377,63 @@ export const updateNoteStatusService = async (
     await note.save();
 
     return note;
+};
+
+
+export const assignNoteTagService = async (noteId, userId, tag) => {
+
+    if (!noteId || isNaN(noteId)) {
+        const error = new Error("Valid noteId is required");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    if (!tag) {
+        const error = new Error("Tag is required");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const normalizedTag = tag.trim().toLowerCase();
+
+    const allowedTags = ["red", "blue", "yellow"];
+
+    if (!allowedTags.includes(normalizedTag)) {
+        const error = new Error(
+            "Tag can only be red, blue or yellow"
+        );
+        error.statusCode = 400;
+        throw error;
+    }
+
+    // Make sure note exists and is approved
+    const note = await Note.findOne({
+        noteId: Number(noteId),
+        status: "approved"
+    });
+
+    if (!note) {
+        const error = new Error("Approved note not found");
+        error.statusCode = 404;
+        throw error;
+    }
+
+    // Create or update this user's tag
+    const noteTag = await NoteTag.findOneAndUpdate(
+        {
+            noteId: Number(noteId),
+            userId: userId
+        },
+        {
+            $set: {
+                tag: normalizedTag
+            }
+        },
+        {
+            new: true,
+            upsert: true
+        }
+    );
+
+    return noteTag;
 };
