@@ -14,6 +14,7 @@ const router = express.Router();
 //     "/",
 //     getApprovedNotes
 // );
+
 router.post(
     "/",
     authMiddleware,
@@ -21,11 +22,6 @@ router.post(
     upload.single("pdf"),
     createNote
 );
-
-// router.get(
-//     "/",
-//     getApprovedNotes
-// );
 
 
 router.get(
