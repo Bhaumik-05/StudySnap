@@ -2,7 +2,7 @@ import express from "express";
 import upload from "../middleware/upload.js";
 import {
     createNote, getApprovedNotes, getPendingNotes,
-    getApprovedNotesById, getRejectedNotes
+    getApprovedNotesById, getRejectedNotes, downloadNote
 } from "../controller/NoteController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 import roleMiddleware from "../middleware/roleMiddleware.js";
@@ -23,21 +23,25 @@ router.get(
 );
 
 router.get(
+    "/:noteId/download",
+    authMiddleware,
+    downloadNote
+);
+router.get(
+    "/:noteId",
+    getApprovedNotesById
+);
+router.get(
     "/pending",
     authMiddleware,
     roleMiddleware("ADMIN"),
     getPendingNotes
 );
-
-router.get(
-    "/:noteId",
-    getApprovedNotesById
-);
-
 router.get(
     "/rejected",
     authMiddleware,
     roleMiddleware("ADMIN"),
     getRejectedNotes
 );
+
 export default router;

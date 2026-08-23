@@ -1,6 +1,6 @@
 import {
     createNoteService, getApprovedNotesService, getPendingNotesService,
-    getApprovedNotesByIdService, getRejectedNotesService
+    getApprovedNotesByIdService, getRejectedNotesService, downloadNoteService
 } from "../services/noteService.js";
 
 export const createNote = async (req, res) => {
@@ -112,6 +112,32 @@ export const getRejectedNotes = async (req, res, next) => {
 
     } catch (error) {
         console.error("Get rejected notes failed:", error);
+        next(error);
+    }
+};
+
+export const downloadNote = async (req, res, next) => {
+    try {
+        const { noteId } = req.params;
+
+        // Get logged-in user from authMiddleware
+        const userId = req.user.userId;
+
+        // Call service
+        const result = await downloadNoteService(
+            noteId,
+            userId
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: "Download authorized",
+            data: result,
+        });
+
+    } catch (error) {
+        console.error("Download note failed:", error);
+
         next(error);
     }
 };

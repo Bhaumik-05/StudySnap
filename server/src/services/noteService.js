@@ -4,7 +4,7 @@ import Department from "../models/Department.js";
 import Subject from "../models/Subject.js";
 import User from "../models/User.js";
 import cloudinary from "../config/cloudinary.js";
-
+import DownloadHistory from "../models/downloadHistory.js";
 
 
 export const createNoteService = async ({
@@ -248,4 +248,47 @@ export const getRejectedNotesService = async () => {
     });
 
     return notes;
+};
+
+export const downloadNoteService = async (noteId, userId) => {
+    // Validate noteId
+    if (!noteId || isNaN(noteId)) {
+        return res.status(400).json({
+            success: false,
+            message: "Valid noteId is required",
+        });
+    }
+    //atomic operation
+    const updatedNote = await Note.findOneAndUpdate(
+        {
+            noteId: Number(noteId),
+            status: "approved",
+        },
+        {
+            $inc: {
+                downloadCount: 1,
+            },
+        },
+        {
+            new: true,
+        }
+    );
+
+    if (!updatedNote) {
+        const error = new Error("Approved note not found");
+        error.statusCode = 404;
+        throw error;
+    }
+
+    await DownloadHistory.create({
+        noteId: updatedNote.noteId,
+        userId,
+        downloadDate: new Date(),
+    });
+
+    return {
+        pdfUrl: updatedNote.pdfUrl,
+        fileName: `${updatedNote.title}.pdf`,
+        downloadCount: updatedNote.downloadCount,
+    };
 };

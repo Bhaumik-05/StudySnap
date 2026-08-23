@@ -1,3 +1,7 @@
+import mongoose from "mongoose";
+
+const { Schema, model } = mongoose;
+
 const downloadHistory = new Schema(
     {
         noteId: {
@@ -19,3 +23,10 @@ const downloadHistory = new Schema(
         timestamps: true
     }
 );
+
+const DownloadHistory = model(
+    "DownloadHistory",
+    downloadHistory
+);
+
+export default DownloadHistory;
