@@ -35,10 +35,10 @@ const errorMiddleware = (err, req, res, next) => {
   }
 
   // Other errors
-  return res.status(500).json({
-    success: false,
-    message: err.message || "Internal server error",
-  });
+return res.status(err.statusCode || 500).json({
+  success: false,
+  message: err.message || "Internal server error",
+});
 };
 
 export default errorMiddleware;

@@ -1,7 +1,13 @@
 import bcrypt from "bcryptjs";
 import User from "../models/User.js";
 import Department from "../models/Department.js";
-import generateToken from "../utils/generatetoken.js";
+import { generateAccessToken, generateRefreshToken } from "../utils/generateToken.js";
+import Session from "../models/Session.js";
+import { convertToMilliseconds } from "../config/env.js";
+import env from "../config/env.js";
+import jwt from "jsonwebtoken";
+
+
 // 1) Register a new user
 const registerUser = async (userData) => {
   const{
@@ -16,7 +22,7 @@ const registerUser = async (userData) => {
   } = userData;
 
   // Check if the user is already there.
-    const existingUserId = await User.findOne({ userId : Number(userId) });
+    const existingUserId = await User.findOne({ userId });
     if(existingUserId) {
         const error = new Error("UserId already exists");
         error.statusCode = 400;
@@ -70,43 +76,142 @@ const registerUser = async (userData) => {
 // 2) Login user
 
 const loginUser = async (email, password) => {
-  // Find user using email
   const user = await User.findOne({ email });
 
   if (!user) {
-    const error = new Error("Invalid email");
-    error.statusCode = 400;
+    const error = new Error("Invalid email or password");
+    error.statusCode = 401;
     throw error;
   }
 
-  // Compare entered password with hashed password
-  const isPasswordCorrect = await bcrypt.compare(
+  const isPasswordValid = await bcrypt.compare(
     password,
     user.password
   );
 
-  if (!isPasswordCorrect) {
-    const error = new Error("Invalid password");
-    error.statusCode = 400;
+  if (!isPasswordValid) {
+    const error = new Error("Invalid email or password");
+    error.statusCode = 401;
     throw error;
   }
 
-  // Generate JWT
-  const token = generateToken(user);
+  // Generate access token
+  const accessToken = generateAccessToken(user);
 
-  // Remove password before sending response
+  // Generate refresh token
+  const refreshToken = generateRefreshToken(user);
+
+  // Calculate session expiry from environment configuration
+  const expiresAt = new Date(
+    Date.now() +
+      convertToMilliseconds(env.REFRESH_TOKEN_EXPIRES_IN)
+  );
+
+  // Create session
+  await Session.create({
+    userId: user.userId,
+    refreshToken,
+    expiresAt,
+  });
+
+  // Remove password from response
   const userResponse = user.toObject();
   delete userResponse.password;
 
   return {
     user: userResponse,
-    token,
+    accessToken,
+    refreshToken,
   };
 };
 
-const logoutUser = async () => {
+// logout
+const logoutUser = async (refreshToken) => {
+  if (!refreshToken) {
+    const error = new Error("No active session found");
+    error.statusCode = 401;
+    throw error;
+  }
+
+  const session = await Session.findOne({ refreshToken });
+
+  // Session doesn't exist = already logged out or invalid session
+  if (!session) {
+    const error = new Error("Session not found or already logged out");
+    error.statusCode = 401;
+    throw error;
+  }
+
+  // Delete the active session
+  await Session.deleteOne({
+    _id: session._id,
+  });
+
   return {
     message: "Logout successful",
+  };
+};
+
+const refreshAccessToken = async (refreshToken) => {
+  // 1. Check if refresh token exists
+  if (!refreshToken) {
+    const error = new Error("Refresh token is required");
+    error.statusCode = 401;
+    throw error;
+  }
+
+  // 2. Verify the refresh token JWT
+  let decoded;
+
+  try {
+    decoded = jwt.verify(
+      refreshToken,
+      env.REFRESH_TOKEN_SECRET
+    );
+  } catch (error) {
+    const tokenError = new Error("Invalid or expired refresh token");
+    tokenError.statusCode = 401;
+    throw tokenError;
+  }
+
+  // 3. Check if the session exists in MongoDB
+  const session = await Session.findOne({
+    refreshToken,
+  });
+
+  if (!session) {
+    const error = new Error("Session not found or has been logged out");
+    error.statusCode = 401;
+    throw error;
+  }
+
+  // 4. Check session expiry
+  if (session.expiresAt < new Date()) {
+    await Session.deleteOne({
+      _id: session._id,
+    });
+
+    const error = new Error("Session has expired");
+    error.statusCode = 401;
+    throw error;
+  }
+
+  // 5. Find the user
+  const user = await User.findOne({
+    userId: decoded.userId,
+  });
+
+  if (!user) {
+    const error = new Error("User not found");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  // 6. Generate a new access token
+  const accessToken = generateAccessToken(user);
+
+  return {
+    accessToken,
   };
 };
 
@@ -114,4 +219,5 @@ export default {
     registerUser,
     loginUser,
     logoutUser,
+    refreshAccessToken,
 };

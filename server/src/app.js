@@ -6,10 +6,12 @@ import errorMiddleware from "./middleware/errorMiddleware.js";
 import UserRoutes from "./routes/UserRoutes.js";
 import subjectRoutes from "./routes/SubjectRoutes.js";
 import noteRoutes from "./routes/NoteRoutes.js";
+import cookieParser from "cookie-parser";
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 
 app.get("/", (req, res) => {
   res.json({
