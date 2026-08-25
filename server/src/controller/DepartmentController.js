@@ -1,8 +1,8 @@
 import { createDepartmentService, getDepartmentsService, updateDepartmentService, deleteDepartmentService } from "../services/DepartmentService.js";
 export const createDepartment = async (req, res) => {
     try {
-        const { deptId, deptName } = req.body;
-        const department = await createDepartmentService(deptId, deptName);
+        const { deptName } = req.body;
+        const department = await createDepartmentService(deptName);
         res.status(201).json({ message: "Department created successfully", department });
     } catch (error) {
         res.status(error.statusCode || 500).json({ message: error.message || "Internal server error" });

@@ -4,12 +4,13 @@ import { getDepartments, createDepartment, updateDepartment, deleteDepartment } 
 
 import authMiddleware from "../middleware/authMiddleware.js";
 import roleMiddleware from "../middleware/roleMiddleware.js";
+import { validateDepartmentName } from "../middleware/validation/departmentValidation.js"
 
 const router = express.Router();
 
 router.get("/", getDepartments);
-router.post("/", authMiddleware, roleMiddleware("ADMIN"), createDepartment);
-router.patch("/:id", authMiddleware, roleMiddleware("ADMIN"), updateDepartment);
+router.post("/", authMiddleware, roleMiddleware("ADMIN"), validateDepartmentName, createDepartment);
+router.patch("/:id", authMiddleware, roleMiddleware("ADMIN"), validateDepartmentName, updateDepartment);
 router.delete("/:id", authMiddleware, roleMiddleware("ADMIN"), deleteDepartment);
 
 export default router;

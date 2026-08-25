@@ -1,25 +1,35 @@
 import Department from "../models/Department.js";
+import { generateDepartmentId } from "../utils/departmentIdGenerator.js";
 
-export const createDepartmentService = async (deptId, deptName) => {
-    if (!deptId) {
-        const error = new Error("Department ID is required");
-        error.statusCode = 400;
-        throw error;
-    }
-    if (!deptName) {
-        const error = new Error("Department name is required");
-        error.statusCode = 400;
-        throw error;
-    }
+export const createDepartmentService = async (deptName) => {
+
     const normalizedDeptName = deptName.trim().toLowerCase();
-    const existingDepartment = await Department.findOne({ $or: [{ deptId }, { deptName: normalizedDeptName }] });
+
+    // Check only department name
+    const existingDepartment = await Department.findOne({
+        deptName: normalizedDeptName
+    });
+
     if (existingDepartment) {
-        const error = new Error("Department with this ID or name already exists");
+        const error = new Error(
+            "Department with this name already exists"
+        );
+
         error.statusCode = 409;
         throw error;
     }
-    const department = new Department({ deptId, deptName: normalizedDeptName });
+
+    // Generate department ID
+    const deptId = await generateDepartmentId();
+
+    // Create department
+    const department = new Department({
+        deptId,
+        deptName: normalizedDeptName
+    });
+
     await department.save();
+
     return department;
 };
 
