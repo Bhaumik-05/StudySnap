@@ -1,7 +1,8 @@
 import jwt from "jsonwebtoken";
 import env from "../config/env.js";
+import { isAccessTokenBlacklisted } from "../utils/tokenBlacklist.js";
 
-const authMiddleware = (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
@@ -16,9 +17,23 @@ const authMiddleware = (req, res, next) => {
 
     const decoded = jwt.verify(token, env.JWT_SECRET);
 
+    // Check whether this specific token was revoked
+    const isBlacklisted = await isAccessTokenBlacklisted(decoded.jti);
+
+    if (isBlacklisted) {
+      return res.status(401).json({
+        success: false,
+        message: "Access token has been revoked. Please login again.",
+      });
+    }
+
     req.user = decoded;
 
+    // Important: keep the actual token for logout
+    req.accessToken = token;
+
     next();
+
   } catch (error) {
     return res.status(401).json({
       success: false,

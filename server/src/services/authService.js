@@ -6,7 +6,7 @@ import Session from "../models/Session.js";
 import { convertToMilliseconds } from "../config/env.js";
 import env from "../config/env.js";
 import jwt from "jsonwebtoken";
-
+import { blacklistAccessToken } from "../utils/tokenBlacklist.js";
 
 // 1) Register a new user
 const registerUser = async (userData) => {
@@ -125,21 +125,76 @@ const loginUser = async (email, password) => {
   };
 };
 
+// // logout
+// const logoutUser = async (refreshToken) => {
+//   if (!refreshToken) {
+//     const error = new Error("No active session found");
+//     error.statusCode = 401;
+//     throw error;
+//   }
+
+//   const session = await Session.findOne({ refreshToken });
+
+//   // Session doesn't exist = already logged out or invalid session
+//   if (!session) {
+//     const error = new Error("Session not found or already logged out");
+//     error.statusCode = 401;
+//     throw error;
+//   }
+
+//   // Delete the active session
+//   await Session.deleteOne({
+//     _id: session._id,
+//   });
+
+//   return {
+//     message: "Logout successful",
+//   };
+// };
+
+// new logout user with blacklisting access token
+
 // logout
-const logoutUser = async (refreshToken) => {
+
+const logoutUser = async (refreshToken, decodedAccessToken) => {
+  // Check refresh token
   if (!refreshToken) {
     const error = new Error("No active session found");
     error.statusCode = 401;
     throw error;
   }
 
+  // Check access token data
+  if (!decodedAccessToken || !decodedAccessToken.jti) {
+    const error = new Error("Invalid access token");
+    error.statusCode = 401;
+    throw error;
+  }
+
+  // Find active session
   const session = await Session.findOne({ refreshToken });
 
   // Session doesn't exist = already logged out or invalid session
   if (!session) {
-    const error = new Error("Session not found or already logged out");
+    const error = new Error(
+      "Session not found or already logged out"
+    );
     error.statusCode = 401;
     throw error;
+  }
+
+  // Calculate remaining access-token lifetime
+  const currentTimeInSeconds = Math.floor(Date.now() / 1000);
+
+  const remainingTime =
+    decodedAccessToken.exp - currentTimeInSeconds;
+
+  // Blacklist access token only if it still has time remaining
+  if (remainingTime > 0) {
+    await blacklistAccessToken(
+      decodedAccessToken.jti,
+      remainingTime
+    );
   }
 
   // Delete the active session
@@ -151,6 +206,8 @@ const logoutUser = async (refreshToken) => {
     message: "Logout successful",
   };
 };
+
+// refresh the access token
 
 const refreshAccessToken = async (refreshToken) => {
   // 1. Check if refresh token exists

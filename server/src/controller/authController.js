@@ -53,9 +53,14 @@ const login = async (req, res, next) => {
 // logout user
 const logout = async (req, res, next) => {
   try {
+    // Refresh token comes from HTTP-only cookie
     const refreshToken = req.cookies.refreshToken;
 
-    const result = await authService.logoutUser(refreshToken);
+    // req.user comes from authMiddleware
+    const result = await authService.logoutUser(
+      refreshToken,
+      req.user
+    );
 
     // Remove refresh token cookie
     res.clearCookie("refreshToken", {
@@ -64,10 +69,11 @@ const logout = async (req, res, next) => {
       sameSite: "lax",
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: result.message,
     });
+
   } catch (error) {
     next(error);
   }

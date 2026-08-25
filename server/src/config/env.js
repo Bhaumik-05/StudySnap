@@ -37,6 +37,8 @@ const env = {
 
   REFRESH_TOKEN_EXPIRES_IN:
     process.env.REFRESH_TOKEN_EXPIRES_IN || "7d",
+  
+  REDIS_URL: process.env.REDIS_URL,
 
   CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
 

@@ -1,11 +1,15 @@
 import jwt from "jsonwebtoken";
 import env from "../config/env.js";
+import crypto from "crypto"
 
 const generateAccessToken = (user) => {
   const payload = {
     userId: user.userId,
     email: user.email,
     role: user.role,
+    // JWT Token ID , mainly used for blacklisting in redis after the session is over.
+    // because every token has a TTL(Token Time Limit)
+    jti : crypto.randomUUID(),
   };
 
   return jwt.sign(
