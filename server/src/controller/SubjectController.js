@@ -12,8 +12,8 @@ export const getSubjects = async (req, res) => {
 
 export const createSubject = async (req, res) => {
     try {
-        const { subjectId, subjectName, deptId } = req.body;
-        const subject = await createSubjectService(subjectId, subjectName, deptId);
+        const { subjectName, deptId } = req.body;
+        const subject = await createSubjectService(subjectName, deptId);
         res.status(201).json({ message: "Subject created successfully", subject });
     }
     catch (error) {

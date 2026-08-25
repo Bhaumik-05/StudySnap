@@ -1,26 +1,11 @@
 import Subject from "../models/Subject.js";
 import Department from "../models/Department.js";
-
+import { generateSubjectId } from "../utils/subjectIdGenerator.js";
 export const getSubjectsService = async () => {
     return (await Subject.find()).toSorted((a, b) => a.subjectId - b.subjectId);
 }
 
-export const createSubjectService = async (subjectId, subjectName, deptId) => {
-    if (!subjectId) {
-        const error = new Error("Subject ID is required");
-        error.statusCode = 400;
-        throw error;
-    }
-    if (!subjectName) {
-        const error = new Error("Subject name is required");
-        error.statusCode = 400;
-        throw error;
-    }
-    if (!deptId || !Array.isArray(deptId) || deptId.length === 0) {
-        const error = new Error("Department ID(s) are required");
-        error.statusCode = 400;
-        throw error;
-    }
+export const createSubjectService = async (subjectName, deptId) => {
 
     // Convert every department ID to Number
     const departmentIds = deptId.map(id => Number(id));
@@ -49,13 +34,15 @@ export const createSubjectService = async (subjectId, subjectName, deptId) => {
 
     const normalizedSubjectName = subjectName.trim().toLowerCase();
 
-    const existingSubject = await Subject.findOne({ $or: [{ subjectId: (Number(subjectId)) }, { subjectName: normalizedSubjectName }] });
+    const existingSubject = await Subject.findOne({
+        subjectName: normalizedSubjectName
+    });
     if (existingSubject) {
         const error = new Error("Subject with this ID or name already exists");
         error.statusCode = 409;
         throw error;
     }
-
+    const subjectId = await generateSubjectId();
     const subject = new Subject({ subjectId, subjectName: normalizedSubjectName, deptId });
     await subject.save();
     return subject;
