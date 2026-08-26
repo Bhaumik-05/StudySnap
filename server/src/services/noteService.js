@@ -12,8 +12,6 @@ import { generateNoteId } from "../utils/noteIdGenerator.js";
 export const createNoteService = async ({
     file, title, description, semester,
     deptId, subjectId, uploadedBy, }) => {
-    //error handling for  file
-
 
     const departmentId = Number(deptId);
     const subjectIdNumber = Number(subjectId);
@@ -77,9 +75,7 @@ export const createNoteService = async ({
         const note = await Note.create({
             noteId,
 
-
             title,
-
 
             description,
 
