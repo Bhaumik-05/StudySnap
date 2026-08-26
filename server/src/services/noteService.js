@@ -6,64 +6,15 @@ import User from "../models/User.js";
 import cloudinary from "../config/cloudinary.js";
 import DownloadHistory from "../models/downloadHistory.js";
 import NoteTag from "../models/noteTag.js";
+import { generateNoteId } from "../utils/noteIdGenerator.js";
 
 
 export const createNoteService = async ({
-    file, title, description, tag, semester,
+    file, title, description, semester,
     deptId, subjectId, uploadedBy, }) => {
     //error handling for  file
-    if (!file) {
-        const error = new Error("PDF file is required");
-        error.statusCode = 400;
-        throw error;
-    }
-    if (!title) {
-        const error = new Error("Title is required");
-        error.statusCode = 400;
-        throw error;
-    }
 
 
-    if (!semester) {
-        const error = new Error("Semester is required");
-        error.statusCode = 400;
-        throw error;
-    }
-
-
-    if (!deptId) {
-        const error = new Error("Department ID is required");
-        error.statusCode = 400;
-        throw error;
-    }
-
-
-    if (!subjectId) {
-        const error = new Error("Subject ID is required");
-        error.statusCode = 400;
-        throw error;
-    }
-
-
-    if (!uploadedBy) {
-        const error = new Error("UploadedBy (user email) is required");
-        error.statusCode = 400;
-        throw error;
-    }
-
-
-    const semesterNumber = Number(semester);
-
-
-    if (!Number.isInteger(semesterNumber) ||
-        semesterNumber < 1 ||
-        semesterNumber > 8) {
-
-
-        const error = new Error("Semester must be an integer between 1 and 8");
-        error.statusCode = 400;
-        throw error;
-    }
     const departmentId = Number(deptId);
     const subjectIdNumber = Number(subjectId);
 
@@ -73,8 +24,6 @@ export const createNoteService = async ({
         error.statusCode = 400;
         throw error;
     }
-
-
 
 
     if (!Number.isInteger(subjectIdNumber)) {
@@ -120,12 +69,8 @@ export const createNoteService = async ({
 
 
     // 2. Generate noteId
-    const lastNote = await Note.findOne()
-        .sort({ noteId: -1 })
-        .select("noteId");
 
-
-    const noteId = lastNote ? lastNote.noteId + 1 : 1;
+    const noteId = await generateNoteId();
 
     // 4. Create Note
     try {

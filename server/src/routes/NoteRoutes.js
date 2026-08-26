@@ -8,6 +8,8 @@ import {
 import authMiddleware from "../middleware/authMiddleware.js";
 import roleMiddleware from "../middleware/roleMiddleware.js";
 import { getUserTaggedNotes } from "../controller/noteTagController.js"
+import { validateNote } from "../middleware/validation/noteValidation.js";
+
 const router = express.Router();
 
 // router.get(
@@ -20,6 +22,7 @@ router.post(
     authMiddleware,
     roleMiddleware("FACULTY", "STUDENT"),
     upload.single("pdf"),
+    validateNote,
     createNote
 );
 
