@@ -9,6 +9,7 @@ import authMiddleware from "../middleware/authMiddleware.js";
 import roleMiddleware from "../middleware/roleMiddleware.js";
 import { getUserTaggedNotes } from "../controller/noteTagController.js"
 import { validateNote } from "../middleware/validation/noteValidation.js";
+import { validateNoteTag } from "../middleware/validation/noteTagValidation.js"
 
 const router = express.Router();
 
@@ -43,6 +44,7 @@ router.patch(
     "/:noteId/tag",
     authMiddleware,
     roleMiddleware("STUDENT", "FACULTY"),
+    validateNoteTag,
     assignNoteTag
 );
 

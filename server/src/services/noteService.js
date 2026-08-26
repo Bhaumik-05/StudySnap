@@ -371,42 +371,11 @@ export const updateNoteStatusService = async (
 
 export const assignNoteTagService = async (noteId, userId, tag) => {
 
-
-    if (!noteId || isNaN(noteId)) {
-        const error = new Error("Valid noteId is required");
-        error.statusCode = 400;
-        throw error;
-    }
-
-
-    if (!tag) {
-        const error = new Error("Tag is required");
-        error.statusCode = 400;
-        throw error;
-    }
-
-
-    const normalizedTag = tag.trim().toLowerCase();
-
-
-    const allowedTags = ["red", "blue", "yellow"];
-
-
-    if (!allowedTags.includes(normalizedTag)) {
-        const error = new Error(
-            "Tag can only be red, blue or yellow"
-        );
-        error.statusCode = 400;
-        throw error;
-    }
-
-
-    // Make sure note exists and is approved
+    // Check note exists and is approved
     const note = await Note.findOne({
         noteId: Number(noteId),
         status: "approved"
     });
-
 
     if (!note) {
         const error = new Error("Approved note not found");
@@ -414,8 +383,7 @@ export const assignNoteTagService = async (noteId, userId, tag) => {
         throw error;
     }
 
-
-    // Create or update this user's tag
+    // Create or update user's tag
     const noteTag = await NoteTag.findOneAndUpdate(
         {
             noteId: Number(noteId),
@@ -423,7 +391,7 @@ export const assignNoteTagService = async (noteId, userId, tag) => {
         },
         {
             $set: {
-                tag: normalizedTag
+                tag: tag
             }
         },
         {
@@ -431,7 +399,6 @@ export const assignNoteTagService = async (noteId, userId, tag) => {
             upsert: true
         }
     );
-
 
     return noteTag;
 };
