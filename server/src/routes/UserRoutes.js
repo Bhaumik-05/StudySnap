@@ -5,7 +5,7 @@ import authMiddleware from "../middleware/authMiddleware.js";
 import {
   getUserUploadHistory,
 } from "../controller/uploadHistoryController.js";
-
+import { validateUpdateUser } from "../middleware/validation/userValidation.js";
 
 const router = Router();
 
@@ -19,6 +19,7 @@ router.get(
 router.patch(
   "/me",
   authMiddleware,
+  validateUpdateUser,
   UserController.updateProfile
 );
 

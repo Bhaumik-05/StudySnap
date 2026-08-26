@@ -7,11 +7,11 @@ import { convertToMilliseconds } from "../config/env.js";
 import env from "../config/env.js";
 import jwt from "jsonwebtoken";
 import { blacklistAccessToken } from "../utils/tokenBlacklist.js";
+import { generateUserId } from "../utils/userIDGenerator.js";
 
 // 1) Register a new user
 const registerUser = async (userData) => {
   const{
-    userId,
     name,
     email,
     password,
@@ -21,18 +21,19 @@ const registerUser = async (userData) => {
     deptId,
   } = userData;
 
-  // Check if the user is already there.
-    const existingUserId = await User.findOne({ userId });
-    if(existingUserId) {
-        const error = new Error("UserId already exists");
-        error.statusCode = 400;
-        throw error;
-    }
+  // // Check if the user is already there.
+  //   const existingUserId = await User.findOne({ userId });
+  //   if(existingUserId) {
+  //       const error = new Error("UserId already exists");
+  //       error.statusCode = 400;
+  //       throw error;
+  //   }
+
      // Check if the email is already there.
     const existingEmail = await User.findOne({ email });
     if(existingEmail) {
         const error = new Error("Email already exists");
-        error.statusCode = 400;
+        error.statusCode = 409;
         throw error;
     }
 
@@ -40,7 +41,7 @@ const registerUser = async (userData) => {
     if (role !== 'ADMIN') {
       if (!deptId) {
         const error = new Error("Department ID is required for non-admin users");
-        error.statusCode = 400;
+        error.statusCode = 404;
         throw error;
       }
 
@@ -52,11 +53,14 @@ const registerUser = async (userData) => {
       }
     }
 
+    // Generate a unique userId based on the role
+    const generatedUserId = await generateUserId(role);
+
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
     // Create a user
     const user = await User.create({
-        userId,
+        userId: generatedUserId,
         name,
         email,
         password: hashedPassword,
