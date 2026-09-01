@@ -41,7 +41,6 @@ export const getUserDownloadHistoryService = async (userId) => {
             noteId: note.noteId,
             title: note.title,
             description: note.description,
-            tag: note.tag,
             semester: note.semester,
             deptId: note.deptId,
             subjectId: note.subjectId,

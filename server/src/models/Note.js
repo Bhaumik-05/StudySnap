@@ -16,7 +16,7 @@ const note = new Schema(
             required: true,
             trim: true,
             minlength: [3, "Title must be at least 3 characters"],
-            maxlength: [150, "Title cannot exceed 100 characters"]
+            maxlength: [100, "Title cannot exceed 100 characters"]
         },
 
         description: {

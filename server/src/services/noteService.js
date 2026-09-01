@@ -7,6 +7,7 @@ import cloudinary from "../config/cloudinary.js";
 import DownloadHistory from "../models/downloadHistory.js";
 import NoteTag from "../models/noteTag.js";
 import { generateNoteId } from "../utils/noteIdGenerator.js";
+import { error } from "console";
 
 
 export const createNoteService = async ({
@@ -217,10 +218,9 @@ export const getRejectedNotesService = async () => {
 export const downloadNoteService = async (noteId, userId) => {
     // Validate noteId
     if (!noteId || isNaN(noteId)) {
-        return res.status(400).json({
-            success: false,
-            message: "Valid noteId is required",
-        });
+        const error = new error("Valid NoteId is required");
+        error.statusCode = 400;
+        return error;
     }
     //atomic operation
     const updatedNote = await Note.findOneAndUpdate(
