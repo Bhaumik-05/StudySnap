@@ -1,5 +1,5 @@
 import express from "express";
-import { getPendingNotes , getRejectedNotes , updateNoteStatus } from "../controller/adminController.js";
+import { getPendingNotes , getRejectedNotes , updateNoteStatus } from "../controller/AdminController.js";
 import roleMiddleware from "../middleware/roleMiddleware.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 

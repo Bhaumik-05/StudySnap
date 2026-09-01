@@ -1,4 +1,5 @@
 import User from "../models/User.js";
+import bcrypt from "bcryptjs";
  // Get user profile
 const getProfile = async (userId) => {
   const user = await User.findOne({ userId }).select("-password");

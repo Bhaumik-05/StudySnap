@@ -97,7 +97,7 @@ export const validateRegisterUser = (req, res, next) => {
 
 
     // ROLE
-    const allowedRoles = ["STUDENT", "FACULTY", "ADMIN"];
+    const allowedRoles = ["STUDENT", "FACULTY"];
 
     if (!role || !allowedRoles.includes(role)) {
         return res.status(400).json({
