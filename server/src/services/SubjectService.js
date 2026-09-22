@@ -27,9 +27,13 @@ export const createSubjectService = async (subjectName, deptId) => {
 
     // If any department is missing, stop creation
     if (missingDeptIds.length > 0) {
-        throw new Error(
+        const error = new Error(
             `Department ID(s) not found: ${missingDeptIds.join(", ")}`
         );
+
+        error.statusCode = 404;
+
+        throw error;
     }
 
     const normalizedSubjectName = subjectName.trim().toLowerCase();

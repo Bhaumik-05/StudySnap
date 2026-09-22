@@ -7,7 +7,6 @@ import cloudinary from "../config/cloudinary.js";
 import DownloadHistory from "../models/downloadHistory.js";
 import NoteTag from "../models/noteTag.js";
 import { generateNoteId } from "../utils/noteIdGenerator.js";
-import { error } from "console";
 
 
 export const createNoteService = async ({
@@ -216,28 +215,17 @@ export const getRejectedNotesService = async () => {
 
 
 export const downloadNoteService = async (noteId, userId) => {
-    // Validate noteId
-    if (!noteId || isNaN(noteId)) {
-        const error = new error("Valid NoteId is required");
+    if (!noteId || isNaN(Number(noteId))) {
+        const error = new Error("Valid noteId is required");
         error.statusCode = 400;
-        return error;
+        throw error;
     }
-    //atomic operation
-    const updatedNote = await Note.findOneAndUpdate(
-        {
-            noteId: Number(noteId),
-            status: "approved",
-        },
-        {
-            $inc: {
-                downloadCount: 1,
-            },
-        },
-        {
-            new: true,
-        }
-    );
 
+    const updatedNote = await Note.findOneAndUpdate(
+        { noteId: Number(noteId), status: "approved" },
+        { $inc: { downloadCount: 1 } },
+        { new: true }
+    );
 
     if (!updatedNote) {
         const error = new Error("Approved note not found");
@@ -245,13 +233,11 @@ export const downloadNoteService = async (noteId, userId) => {
         throw error;
     }
 
-
     await DownloadHistory.create({
         noteId: updatedNote.noteId,
         userId,
         downloadDate: new Date(),
     });
-
 
     return {
         pdfUrl: updatedNote.pdfUrl,
@@ -259,7 +245,6 @@ export const downloadNoteService = async (noteId, userId) => {
         downloadCount: updatedNote.downloadCount,
     };
 };
-
 
 export const getUserUploadHistoryService = async (userEmail) => {
 

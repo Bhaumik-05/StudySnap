@@ -34,10 +34,10 @@ export const createNote = async (req, res) => {
 
     } catch (error) {
         console.error("Create note failed:", error);
+
         res.status(error.statusCode || 500).json({
             success: false,
             message: error.message || "Internal server error",
-            error: error.stack || "No stack trace available",
         });
     }
 };
@@ -53,11 +53,9 @@ export const getApprovedNotes = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Get approved notes failed:", error);
-
-        return res.status(500).json({
+        return res.status(error.statusCode || 500).json({
             success: false,
-            message: "Failed to fetch approved notes",
+            message: error.message || "Failed to fetch approved notes",
         });
     }
 };
