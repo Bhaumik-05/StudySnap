@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import Container from "../ui/Container";
 
 function AppShell({ children }) {
@@ -5,82 +6,65 @@ function AppShell({ children }) {
     <div className="min-h-svh bg-[var(--background)] text-[var(--foreground)]">
       <header className="relative z-20 border-b border-[var(--border)]">
         <Container>
-          <div className="grid min-h-24 grid-cols-[1fr_auto_1fr] items-center gap-6">
+          <div className="flex min-h-24 items-center justify-between">
 
             {/* Brand */}
-            <a
-              href="/"
-              className="group flex items-center gap-4"
+            <Link
+              to="/"
+              className="group"
               aria-label="StudySnap home"
             >
-
-              <div className="leading-none">
-                <div className="text-[30px] font-bold tracking-[-0.055em]">
-                  StudySnap
-                </div>
-
-                <div className="mt-1.5 hidden font-mono text-[8px] font-bold uppercase tracking-[0.18em] text-[var(--muted)] sm:block">
-                  Academic workspace
-                </div>
+              <div className="text-[35px] font-bold leading-none tracking-[-0.055em]">
+                StudySnap
               </div>
-            </a>
+
+              <div className="mt-1.5 font-mono text-[8px] font-bold uppercase tracking-[0.18em] text-[var(--muted)]">
+                Academic workspace
+              </div>
+            </Link>
 
             {/* Navigation */}
             <nav className="hidden items-center md:flex">
-              <a
-                href="/notes"
-                className="group flex items-center gap-3 border-x border-[var(--border)] px-7 py-3"
+              <Link
+                to="/notes"
+                className="border-l border-[var(--border)] px-8 py-3 text-xs font-bold uppercase tracking-[0.16em] transition-colors hover:text-[var(--muted)]"
               >
-                <span className="font-mono text-[9px] font-bold text-[var(--muted)]">
-                  
-                </span>
-
-                <span className="relative text-xs font-bold uppercase tracking-[0.16em]">
-                  Notes
-                  <span className="absolute -bottom-2 left-0 h-px w-full origin-left bg-black transition-transform duration-200 group-hover:scale-x-0" />
-                </span>
-
-                <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
-              </a>
+                Notes
+              </Link>
 
               <a
-                href="#about"
-                className="group flex items-center gap-3 px-7 py-3 text-[var(--muted)] transition-colors hover:text-black"
+                href="/#about"
+                className="border-l border-[var(--border)] px-8 py-3 text-xs font-bold uppercase tracking-[0.16em] text-[var(--muted)] transition-colors hover:text-[var(--foreground)]"
               >
-                <span className="font-mono text-[9px] font-bold">
-                  
-                </span>
-
-                <span className="text-xs font-bold uppercase tracking-[0.16em]">
-                  About
-                </span>
+                About
               </a>
             </nav>
 
             {/* Actions */}
-            <div className="flex items-center justify-end gap-5">
-              <a
-                href="/login"
+            <div className="flex items-center gap-6">
+              <Link
+                to="/login"
                 className="hidden text-xs font-bold uppercase tracking-[0.14em] transition-opacity hover:opacity-50 sm:block"
               >
                 Login
-              </a>
+              </Link>
 
-              <a
-                href="/register"
+              <Link
+                to="/register"
                 className="group flex items-center gap-3"
               >
                 <span className="hidden text-xs font-bold uppercase tracking-[0.14em] sm:block">
                   Join
                 </span>
 
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-black text-white transition-transform duration-200 group-hover:rotate-45">
-                  <span className="text-lg leading-none">
+                <span className="flex h-11 w-11 items-center justify-center rounded-full border border-black/20 transition-all duration-200 group-hover:bg-black group-hover:text-white">
+                  <span className="text-base transition-transform duration-200 group-hover:rotate-45">
                     ↗
                   </span>
                 </span>
-              </a>
+              </Link>
             </div>
+
           </div>
         </Container>
       </header>
