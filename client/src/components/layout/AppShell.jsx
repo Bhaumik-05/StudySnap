@@ -26,6 +26,12 @@ function AppShell({ children }) {
             {/* Navigation */}
             <nav className="hidden items-center md:flex">
               <Link
+                to="/departments"
+                className="border-l border-[var(--border)] px-8 py-3 text-xs font-bold uppercase tracking-[0.16em] transition-colors hover:text-[var(--muted)]"
+              >
+                Departments
+              </Link>
+              <Link
                 to="/notes"
                 className="border-l border-[var(--border)] px-8 py-3 text-xs font-bold uppercase tracking-[0.16em] transition-colors hover:text-[var(--muted)]"
               >

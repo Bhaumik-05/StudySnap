@@ -6,11 +6,14 @@ import Notes from "./pages/notes/Notes";
 import NoteDetails from "./pages/notes/NoteDetails";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
+import Departments from "./pages/departments/Departments";
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+
+      <Route path="/departments" element={<Departments />} />
 
       <Route path="/notes" element={<Notes />} />
 
@@ -19,6 +22,7 @@ function App() {
       <Route path="/login" element={<Login />} />
 
       <Route path="/register" element={<Register />} />
+
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
