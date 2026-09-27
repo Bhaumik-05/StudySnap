@@ -54,10 +54,35 @@ function Notes() {
     setLoading(true);
     setError("");
     searchNotes({ ...filters, limit: SEARCH_PAGE_SIZE })
-      .then((data) => {
-        setNotes(data.data || []);
-        setPagination(data.pagination || { page: 1, totalPages: 1, total: 0 });
-      })
+        .then((data) => {
+          const nextPagination =
+            data.pagination || {
+              page: 1,
+              totalPages: 1,
+              total: 0,
+            };
+
+          const nextNotes = data.data || [];
+
+          setNotes(nextNotes);
+          setPagination(nextPagination);
+
+          // If the requested page no longer exists,
+          // move back to the last valid page.
+          if (
+            nextPagination.totalPages > 0 &&
+            filters.page > nextPagination.totalPages
+          ) {
+            const next = new URLSearchParams(searchParams);
+
+            next.set(
+              "page",
+              String(nextPagination.totalPages),
+            );
+
+            setSearchParams(next);
+          }
+        })
       .catch((err) => setError(getErrorMessage(err, "Could not load notes.")))
       .finally(() => setLoading(false));
   }, [filters]);
