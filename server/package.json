@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "test": "vitest"
+    "test": "vitest",
+    "test:integration": "vitest run --config ./vitest.integration.config.js",
+    "test:integration:watch": "vitest --config ./vitest.integration.config.js"
   },
   "keywords": [],
   "author": "",

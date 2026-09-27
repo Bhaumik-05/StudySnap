@@ -1,6 +1,13 @@
 import dotenv from "dotenv";
 
-dotenv.config();
+const envFile =
+  process.env.STUDYSNAP_TEST === "true"
+    ? ".env.test"
+    : ".env";
+
+dotenv.config({
+  path: envFile,
+});
 
 const convertToMilliseconds = (duration) => {
   const match = duration.match(/^(\d+)([smhd])$/);
