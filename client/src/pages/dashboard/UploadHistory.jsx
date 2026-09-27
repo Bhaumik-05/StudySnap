@@ -32,6 +32,7 @@ function UploadHistory() {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [expandedRejectedId, setExpandedRejectedId] = useState(null);
 
   useEffect(() => {
     getUploadHistory()
@@ -121,96 +122,146 @@ function UploadHistory() {
         ) : (
           <div className="space-y-4">
 
-            {history.map((item, index) => (
-              <Link
-                key={item.noteId}
-                to={`/notes/${item.noteId}`}
-                className="
-                  group
-                  block
-                  rounded-[28px]
-                  border
-                  border-[var(--border)]
-                  bg-white
-                  p-5
-                  shadow-[0_10px_30px_rgba(0,0,0,0.035)]
-                  transition-all
-                  duration-300
-                  hover:-translate-y-1
-                  hover:shadow-[0_18px_40px_rgba(0,0,0,0.07)]
-                "
-              >
+            {history.map((item, index) => {
+              const isRejected = item.status === "rejected";
+              const isExpanded = expandedRejectedId === item.noteId;
 
-                <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+              const cardClassName = `
+    group
+    block
+    rounded-[28px]
+    border
+    border-[var(--border)]
+    bg-white
+    p-5
+    shadow-[0_10px_30px_rgba(0,0,0,0.035)]
+    transition-all
+    duration-300
+    hover:-translate-y-1
+    hover:shadow-[0_18px_40px_rgba(0,0,0,0.07)]
+  `;
 
-                  {/* Number */}
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px] bg-[#f1f1ed] font-mono text-xs font-bold">
-                    {String(index + 1).padStart(2, "0")}
-                  </div>
+              const cardContent = (
+                <>
+                  <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
 
-                  {/* Main */}
-                  <div className="min-w-0 flex-1">
+                    {/* Number */}
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px] bg-[#f1f1ed] font-mono text-xs font-bold">
+                      {String(index + 1).padStart(2, "0")}
+                    </div>
 
-                    <div className="mb-2 flex flex-wrap items-center gap-2">
+                    {/* Main */}
+                    <div className="min-w-0 flex-1">
 
-                      <span className="font-mono text-[9px] font-bold uppercase tracking-[0.16em] text-[var(--muted)]">
-                        {item.deptName || "Department"}
+                      <div className="mb-2 flex flex-wrap items-center gap-2">
+
+                        <span className="font-mono text-[9px] font-bold uppercase tracking-[0.16em] text-[var(--muted)]">
+                          {item.deptName || "Department"}
+                        </span>
+
+                        <span className="text-[var(--muted-light)]">
+                          /
+                        </span>
+
+                        <span className="font-mono text-[9px] font-bold uppercase tracking-[0.16em] text-[var(--muted)]">
+                          Sem {item.semester}
+                        </span>
+
+                      </div>
+
+                      <h2 className="truncate text-lg font-bold tracking-[-0.02em]">
+                        {item.title}
+                      </h2>
+
+                      <p className="mt-1 text-xs text-[var(--muted)]">
+                        Uploaded {formatDate(item.uploadDate)}
+                      </p>
+
+                    </div>
+
+                    {/* Status */}
+                    <div className="flex items-center gap-4">
+
+                      <span
+                        className={`
+              rounded-full
+              px-3
+              py-1.5
+              font-mono
+              text-[8px]
+              font-bold
+              uppercase
+              tracking-[0.15em]
+              ${statusClass(item.status)}
+            `}
+                      >
+                        {item.status || "pending"}
                       </span>
 
-                      <span className="text-[var(--muted-light)]">
-                        /
-                      </span>
-
-                      <span className="font-mono text-[9px] font-bold uppercase tracking-[0.16em] text-[var(--muted)]">
-                        Sem {item.semester}
+                      <span className="text-lg transition-transform duration-300 group-hover:translate-x-1">
+                        {isRejected
+                          ? (isExpanded ? "↑" : "↓")
+                          : "→"}
                       </span>
 
                     </div>
 
-                    <h2 className="truncate text-lg font-bold tracking-[-0.02em]">
-                      {item.title}
-                    </h2>
-
-                    <p className="mt-1 text-xs text-[var(--muted)]">
-                      Uploaded {formatDate(item.uploadDate)}
-                    </p>
-
                   </div>
 
-                  {/* Status */}
-                  <div className="flex items-center gap-4">
+                  {/* Rejection reason */}
+                  {isRejected && isExpanded && (
+                    <div className="mt-5 border-t border-[var(--border)] pt-5">
 
-                    <span
-                      className={`
-                        rounded-full
-                        px-3
-                        py-1.5
-                        font-mono
-                        text-[8px]
-                        font-bold
-                        uppercase
-                        tracking-[0.15em]
-                        ${statusClass(item.status)}
-                      `}
-                    >
-                      {item.status || "pending"}
-                    </span>
+                      <div className="rounded-[20px] border-l-2 border-[var(--danger)] bg-[var(--surface-muted)] px-5 py-4">
 
-                    <span className="text-lg transition-transform duration-300 group-hover:translate-x-1">
-                      →
-                    </span>
+                        <p className="font-mono text-[8px] font-bold uppercase tracking-[0.16em] text-[var(--danger)]">
+                          Rejection reason
+                        </p>
 
-                  </div>
+                        <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
+                          {item.rejectionReason || "No rejection reason was provided."}
+                        </p>
 
-                </div>
-              </Link>
-            ))}
+                      </div>
+
+                    </div>
+                  )}
+                </>
+              );
+
+              if (isRejected) {
+                return (
+                  <button
+                    key={item.noteId}
+                    type="button"
+                    onClick={() =>
+                      setExpandedRejectedId(
+                        isExpanded ? null : item.noteId
+                      )
+                    }
+                    className={`${cardClassName} w-full text-left`}
+                  >
+                    {cardContent}
+                  </button>
+                );
+              }
+
+              return (
+                <Link
+                  key={item.noteId}
+                  to={`/notes/${item.noteId}`}
+                  className={cardClassName}
+                >
+                  {cardContent}
+                </Link>
+              );
+            })}
 
           </div>
         )}
 
       </div>
-    </Container>
+    </Container >
   );
 }
 

@@ -38,7 +38,7 @@ const uploadPdf = (buffer) => {
                 // Cloudinary normally handles images/videos.
                 // "raw" tells Cloudinary that this is a raw file,
                 // such as a PDF or other non-image file.
-                resource_type: "raw",
+                resource_type: "image",
                 folder: "studysnap/notes",
                 public_id: uniqueId,
                 // Give the uploaded file a unique ID.
