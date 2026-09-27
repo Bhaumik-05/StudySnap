@@ -1,6 +1,7 @@
-function DepartmentCard({ department }) {
-    const departmentName = (department.deptName || department.name)
-        .split(" ")
+function DepartmentCard({ department, isAdmin, onEdit, onDelete }) {
+    const departmentName = (department.deptName || department.name || "")
+        .trim()
+        .split(/\s+/)
         .map(
             (word) =>
                 word.charAt(0).toUpperCase() + word.slice(1)
@@ -43,7 +44,7 @@ function DepartmentCard({ department }) {
                         text-[var(--muted-light)]
                     "
                 >
-                    → 01
+                    → {String(department.deptId).padStart(2, "0")}
                 </span>
             </div>
 
@@ -87,6 +88,7 @@ function DepartmentCard({ department }) {
                     flex
                     items-end
                     justify-between
+                    gap-4
                     border-t
                     border-[var(--border)]
                     pt-4
@@ -105,33 +107,83 @@ function DepartmentCard({ department }) {
                     StudySnap / Academic
                 </span>
 
-                <span
-                    className="
-                        flex
-                        h-9
-                        w-9
-                        items-center
-                        justify-center
-                        rounded-full
-                        border
-                        border-[var(--border)]
-                        text-sm
-                        text-[var(--foreground)]
-                        transition-colors
-                        duration-200
-                    "
-                >
+                {isAdmin ? (
+                    <div className="flex items-center gap-2">
+                        <button
+                            type="button"
+                            onClick={() => onEdit(department)}
+                            className="
+                                border
+                                border-[var(--border)]
+                                px-3
+                                py-2
+                                font-mono
+                                text-[9px]
+                                font-bold
+                                uppercase
+                                tracking-[0.12em]
+                                text-[var(--foreground)]
+                                transition-colors
+                                duration-200
+                                hover:bg-[var(--foreground)]
+                                hover:text-[var(--background)]
+                            "
+                        >
+                            Rename
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => onDelete(department.deptId)}
+                            className="
+                                border
+                                border-[var(--border)]
+                                px-3
+                                py-2
+                                font-mono
+                                text-[9px]
+                                font-bold
+                                uppercase
+                                tracking-[0.12em]
+                                text-[var(--foreground)]
+                                transition-colors
+                                duration-200
+                                hover:bg-[var(--foreground)]
+                                hover:text-[var(--background)]
+                            "
+                        >
+                            Delete
+                        </button>
+                    </div>
+                ) : (
                     <span
                         className="
-                            inline-block
-                            transition-transform
-                            duration-300
-                            group-hover:translate-x-1
+                            flex
+                            h-9
+                            w-9
+                            items-center
+                            justify-center
+                            rounded-full
+                            border
+                            border-[var(--border)]
+                            text-sm
+                            text-[var(--foreground)]
+                            transition-colors
+                            duration-200
                         "
                     >
-                        ↗
+                        <span
+                            className="
+                                inline-block
+                                transition-transform
+                                duration-300
+                                group-hover:translate-x-1
+                            "
+                        >
+                            ↗
+                        </span>
                     </span>
-                </span>
+                )}
             </div>
 
             {/* Kaminari-style editorial hover line */}
