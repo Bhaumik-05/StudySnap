@@ -1,133 +1,245 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-
-import AppShell from "../../components/layout/AppShell";
 import Container from "../../components/ui/Container";
-import DepartmentCard from "../../components/departments/DepartmentCard";
-import { getDepartments } from "../../api/departments";
+import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
+import Alert from "../../components/ui/Alert";
+import Spinner from "../../components/ui/Spinner";
+import { useAuth } from "../../context/AuthContext";
+import { ROLES } from "../../lib/constants";
+import { validateDeptName } from "../../lib/validators";
+import { getErrorMessage } from "../../lib/api";
+import {
+  fetchDepartments,
+  createDepartment,
+  updateDepartment,
+  deleteDepartment,
+} from "../../api/departments";
 
 function Departments() {
-    const [departments, setDepartments] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
+  const { user, isAuthenticated } = useAuth();
+  const isAdmin = isAuthenticated && user?.role === ROLES.ADMIN;
 
-    useEffect(() => {
-        const loadDepartments = async () => {
-            try {
-                setLoading(true);
-                setError("");
+  const [departments, setDepartments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
 
-                const data = await getDepartments();
+  const [newName, setNewName] = useState("");
+  const [newNameError, setNewNameError] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [formError, setFormError] = useState("");
 
-                setDepartments(Array.isArray(data) ? data : []);
-            } catch (err) {
-                setError(
-                    err.userMessage || "Unable to load departments.",
-                );
-            } finally {
-                setLoading(false);
-            }
-        };
+  const [editingId, setEditingId] = useState(null);
+  const [editValue, setEditValue] = useState("");
+  const [editError, setEditError] = useState("");
+  const [savingId, setSavingId] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
+  const [rowError, setRowError] = useState({ id: null, message: "" });
 
-        loadDepartments();
-    }, []);
+  function load() {
+    setLoading(true);
+    fetchDepartments()
+      .then((data) => setDepartments(data.departments || []))
+      .catch((error) =>
+        setLoadError(getErrorMessage(error, "Could not load departments.")),
+      )
+      .finally(() => setLoading(false));
+  }
 
-    return (
-        <AppShell>
-            <section className="border-b border-[var(--border)]">
-                <Container>
-                    <div className="py-12 sm:py-16">
+  useEffect(load, []);
 
-                        {/* Header */}
-                        <div className="border-b border-[var(--border)] pb-8">
-                            <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[var(--muted)]">
-                                02 / Academic structure
-                            </span>
+  async function handleCreate(event) {
+    event.preventDefault();
+    setFormError("");
+    const error = validateDeptName(newName);
+    if (error) {
+      setNewNameError(error);
+      return;
+    }
+    setNewNameError("");
+    setCreating(true);
+    try {
+      await createDepartment(newName.trim());
+      setNewName("");
+      load();
+    } catch (error) {
+      setFormError(getErrorMessage(error, "Could not create department."));
+    } finally {
+      setCreating(false);
+    }
+  }
 
-                            <div className="mt-5 flex flex-col justify-between gap-6 md:flex-row md:items-end">
-                                <div>
-                                    <h1 className="text-5xl font-bold leading-none tracking-[-0.06em] sm:text-6xl">
-                                        Departments
-                                    </h1>
+  function startEdit(dept) {
+    setEditingId(dept.deptId);
+    setEditValue(dept.deptName);
+    setEditError("");
+    setRowError({ id: null, message: "" });
+  }
 
-                                    <p className="mt-5 max-w-xl text-base leading-7 text-[var(--muted)]">
-                                        Browse academic departments and discover the
-                                        subjects and notes available for each area.
-                                    </p>
-                                </div>
+  function cancelEdit() {
+    setEditingId(null);
+    setEditValue("");
+    setEditError("");
+  }
 
-                                <Link
-                                    to="/subjects"
-                                    className="group inline-flex items-center gap-3 text-sm font-bold uppercase tracking-[0.12em]"
-                                >
-                                    <span>View subjects</span>
+  async function handleSaveEdit(deptId) {
+    const error = validateDeptName(editValue);
+    if (error) {
+      setEditError(error);
+      return;
+    }
+    setSavingId(deptId);
+    try {
+      await updateDepartment(deptId, editValue.trim());
+      setEditingId(null);
+      load();
+    } catch (error) {
+      setRowError({
+        id: deptId,
+        message: getErrorMessage(error, "Could not update department."),
+      });
+    } finally {
+      setSavingId(null);
+    }
+  }
 
-                                    <span className="text-lg transition-transform duration-200 group-hover:translate-x-1">
-                                        →
-                                    </span>
-                                </Link>
-                            </div>
-                        </div>
+  async function handleDelete(deptId) {
+    if (!window.confirm("Delete this department? This cannot be undone.")) {
+      return;
+    }
+    setDeletingId(deptId);
+    setRowError({ id: null, message: "" });
+    try {
+      await deleteDepartment(deptId);
+      load();
+    } catch (error) {
+      setRowError({
+        id: deptId,
+        message: getErrorMessage(error, "Could not delete department."),
+      });
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
-                        {/* Content */}
-                        <div className="pt-10">
+  return (
+    <Container className="py-10">
+      <div className="flex flex-col gap-2 border-b border-[var(--border)] pb-6">
+        <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[var(--muted)]">
+          03 / Departments
+        </span>
+        <h1 className="text-4xl font-bold tracking-[-0.03em] sm:text-5xl">
+          Departments
+        </h1>
+        <p className="text-sm text-[var(--muted)]">
+          Browse notes by department, or jump straight into a subject.
+        </p>
+      </div>
 
-                            {/* Loading */}
-                            {loading && (
-                                <div className="py-16 text-center text-sm text-[var(--muted)]">
-                                    Loading departments...
-                                </div>
-                            )}
+      {isAdmin && (
+        <form
+          onSubmit={handleCreate}
+          className="mt-6 flex flex-col gap-3 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-4 sm:flex-row sm:items-end"
+        >
+          <div className="flex-1">
+            <Input
+              label="New department name"
+              placeholder="Computer Engineering"
+              value={newName}
+              onChange={(event) => {
+                setNewName(event.target.value);
+                setNewNameError("");
+              }}
+              error={newNameError}
+            />
+          </div>
+          <Button type="submit" variant="primary" loading={creating}>
+            Add department
+          </Button>
+          {formError && (
+            <Alert variant="error" className="sm:ml-3">
+              {formError}
+            </Alert>
+          )}
+        </form>
+      )}
 
-                            {/* Error */}
-                            {!loading && error && (
-                                <div className="border border-[var(--border)] bg-[var(--surface)] p-6">
-                                    <p className="text-sm text-[var(--danger)]">
-                                        {error}
-                                    </p>
-                                </div>
-                            )}
-
-                            {/* Empty */}
-                            {!loading &&
-                                !error &&
-                                departments.length === 0 && (
-                                    <div className="border border-[var(--border)] bg-[var(--surface)] p-10 text-center">
-                                        <h2 className="text-xl font-bold">
-                                            No departments found
-                                        </h2>
-
-                                        <p className="mt-2 text-sm text-[var(--muted)]">
-                                            There are currently no departments available.
-                                        </p>
-                                    </div>
-                                )}
-
-                            {/* Departments */}
-                            {!loading &&
-                                !error &&
-                                departments.length > 0 && (
-                                    <div className="grid gap-px border border-[var(--border)] bg-[var(--border)] sm:grid-cols-2 lg:grid-cols-3">
-
-                                        {departments.map((department) => (
-                                            <DepartmentCard
-                                                key={
-                                                    department.deptId ||
-                                                    department._id
-                                                }
-                                                department={department}
-                                            />
-                                        ))}
-
-                                    </div>
-                                )}
-
-                        </div>
+      <div className="mt-8">
+        {loading ? (
+          <Spinner label="Loading departments…" />
+        ) : loadError ? (
+          <Alert variant="error">{loadError}</Alert>
+        ) : departments.length === 0 ? (
+          <p className="text-sm text-[var(--muted)]">No departments yet.</p>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {departments.map((dept) => (
+              <div
+                key={dept.deptId}
+                className="flex flex-col gap-3 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-4"
+              >
+                {editingId === dept.deptId ? (
+                  <>
+                    <Input
+                      value={editValue}
+                      onChange={(event) => {
+                        setEditValue(event.target.value);
+                        setEditError("");
+                      }}
+                      error={editError}
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        variant="primary"
+                        onClick={() => handleSaveEdit(dept.deptId)}
+                        loading={savingId === dept.deptId}
+                      >
+                        Save
+                      </Button>
+                      <Button variant="ghost" onClick={cancelEdit}>
+                        Cancel
+                      </Button>
                     </div>
-                </Container>
-            </section>
-        </AppShell>
-    );
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-start justify-between gap-2">
+                      <Link
+                        to={`/notes?deptId=${dept.deptId}`}
+                        className="font-medium capitalize hover:underline"
+                      >
+                        {dept.deptName}
+                      </Link>
+                      <span className="font-mono text-xs text-[var(--muted-light)]">
+                        #{dept.deptId}
+                      </span>
+                    </div>
+                    {isAdmin && (
+                      <div className="flex gap-2">
+                        <Button variant="outline" onClick={() => startEdit(dept)}>
+                          Rename
+                        </Button>
+                        <Button
+                          variant="danger"
+                          onClick={() => handleDelete(dept.deptId)}
+                          loading={deletingId === dept.deptId}
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    )}
+                  </>
+                )}
+                {rowError.id === dept.deptId && (
+                  <Alert variant="error">{rowError.message}</Alert>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </Container>
+  );
 }
 
 export default Departments;

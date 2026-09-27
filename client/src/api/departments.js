@@ -1,23 +1,21 @@
-import api from "./client";
+import api from "../lib/api";
 
-export const getDepartments = async () => {
-    const response = await api.get("/departments");
-    return response.data?.departments ?? [];
-};
+export async function fetchDepartments() {
+  const response = await api.get("/departments");
+  return response.data;
+}
 
-export const createDepartment = async (departmentData) => {
-    return await api.post("/departments", departmentData);
-};
+export async function createDepartment(deptName) {
+  const response = await api.post("/departments", { deptName });
+  return response.data;
+}
 
-export const updateDepartment = async (departmentId, departmentData) => {
-    return await api.patch(
-        `/departments/${departmentId}`,
-        departmentData,
-    );
-};
+export async function updateDepartment(id, deptName) {
+  const response = await api.patch(`/departments/${id}`, { deptName });
+  return response.data;
+}
 
-export const deleteDepartment = async (departmentId) => {
-    return await api.delete(
-        `/departments/${departmentId}`,
-    );
-};
+export async function deleteDepartment(id) {
+  const response = await api.delete(`/departments/${id}`);
+  return response.data;
+}

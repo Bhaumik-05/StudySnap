@@ -4,20 +4,19 @@ import Container from "../../components/ui/Container";
 import Alert from "../../components/ui/Alert";
 import Spinner from "../../components/ui/Spinner";
 import Badge from "../../components/ui/Badge";
-import { getTaggedNotes } from "../../api/notes";
+import { getUploadHistory } from "../../api/users";
 import { getErrorMessage } from "../../lib/api";
 import { formatDate } from "../../lib/format";
-import { NOTE_TAG_LABELS } from "../../lib/constants";
 
-function TaggedNotes() {
+function UploadHistory() {
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    getTaggedNotes()
+    getUploadHistory()
       .then((data) => setNotes(data.data || []))
-      .catch((err) => setError(getErrorMessage(err, "Could not load tagged notes.")))
+      .catch((err) => setError(getErrorMessage(err, "Could not load upload history.")))
       .finally(() => setLoading(false));
   }, []);
 
@@ -28,43 +27,50 @@ function TaggedNotes() {
           Dashboard
         </span>
         <h1 className="text-4xl font-bold tracking-[-0.03em] sm:text-5xl">
-          Tagged notes
+          Upload history
         </h1>
         <p className="text-sm text-[var(--muted)]">
-          Notes you've color-tagged, grouped red, blue, then yellow.
+          Everything you've submitted, and its review status.
         </p>
       </div>
 
       <div className="mt-8">
         {loading ? (
-          <Spinner label="Loading tagged notes…" />
+          <Spinner label="Loading uploads…" />
         ) : error ? (
           <Alert variant="error">{error}</Alert>
         ) : notes.length === 0 ? (
           <p className="py-12 text-center text-sm text-[var(--muted)]">
-            You haven't tagged any notes yet. Tag one from its detail page.
+            You haven't uploaded any notes yet.
           </p>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="flex flex-col gap-3">
             {notes.map((note) => (
-              <Link
+              <div
                 key={note.noteId}
-                to={`/notes/${note.noteId}`}
-                className="flex flex-col gap-3 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-5 transition-colors hover:border-[var(--foreground)]"
+                className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-5"
               >
-                <div className="flex items-start justify-between gap-2">
-                  <h3 className="font-medium leading-snug">{note.title}</h3>
-                  <Badge tone={note.tag}>{NOTE_TAG_LABELS[note.tag]}</Badge>
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div>
+                    {note.status === "approved" ? (
+                      <Link to={`/notes/${note.noteId}`} className="font-medium hover:underline">
+                        {note.title}
+                      </Link>
+                    ) : (
+                      <p className="font-medium">{note.title}</p>
+                    )}
+                    <p className="text-xs text-[var(--muted-light)]">
+                      Uploaded {formatDate(note.uploadDate)}
+                    </p>
+                  </div>
+                  <Badge tone={note.status}>{note.status}</Badge>
                 </div>
-                {note.description && (
-                  <p className="line-clamp-2 text-sm text-[var(--muted)]">
-                    {note.description}
-                  </p>
+                {note.status === "rejected" && note.rejectionReason && (
+                  <Alert variant="warning" className="mt-3">
+                    Rejection reason: {note.rejectionReason}
+                  </Alert>
                 )}
-                <p className="mt-auto text-xs text-[var(--muted-light)]">
-                  Tagged {formatDate(note.taggedDate)}
-                </p>
-              </Link>
+              </div>
             ))}
           </div>
         )}
@@ -73,4 +79,4 @@ function TaggedNotes() {
   );
 }
 
-export default TaggedNotes;
+export default UploadHistory;

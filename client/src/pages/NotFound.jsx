@@ -21,9 +21,9 @@ function NotFound() {
           className="group mt-8 inline-flex items-center gap-3 text-sm font-bold uppercase tracking-[0.12em]"
         >
           <span>Back to StudySnap</span>
-<span className="transition-transform duration-200 group-hover:-translate-x-1">
-  ←
-</span>
+          <span className="transition-transform duration-200 group-hover:-translate-x-1">
+            ←
+          </span>
         </Link>
       </div>
     </main>
