@@ -20,11 +20,17 @@ function Notes() {
   const [departments, setDepartments] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [notes, setNotes] = useState([]);
-  const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 });
+  const [pagination, setPagination] = useState({
+    page: 1,
+    totalPages: 1,
+    total: 0,
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const [searchInput, setSearchInput] = useState(searchParams.get("search") || "");
+  const [searchInput, setSearchInput] = useState(
+    searchParams.get("search") || "",
+  );
 
   const filters = useMemo(
     () => ({
@@ -40,10 +46,11 @@ function Notes() {
   useEffect(() => {
     fetchDepartments()
       .then((data) => setDepartments(data.departments || []))
-      .catch(() => { });
+      .catch(() => {});
+
     fetchSubjects()
       .then((data) => setSubjects(Array.isArray(data) ? data : []))
-      .catch(() => { });
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -63,37 +70,45 @@ function Notes() {
   useEffect(() => {
     setLoading(true);
     setError("");
-    searchNotes({ ...filters, limit: SEARCH_PAGE_SIZE })
-        .then((data) => {
-          const nextPagination =
-            data.pagination || {
-              page: 1,
-              totalPages: 1,
-              total: 0,
-            };
 
-          const nextNotes = data.data || [];
+    searchNotes({
+      ...filters,
+      limit: SEARCH_PAGE_SIZE,
+    })
+      .then((data) => {
+        const nextPagination =
+          data.pagination || {
+            page: 1,
+            totalPages: 1,
+            total: 0,
+          };
 
-          setNotes(nextNotes);
-          setPagination(nextPagination);
+        const nextNotes = data.data || [];
 
-          // If the requested page no longer exists,
-          // move back to the last valid page.
-          if (
-            nextPagination.totalPages > 0 &&
-            filters.page > nextPagination.totalPages
-          ) {
-            const next = new URLSearchParams(searchParams);
+        setNotes(nextNotes);
+        setPagination(nextPagination);
 
-            next.set(
-              "page",
-              String(nextPagination.totalPages),
-            );
+        // If the requested page no longer exists,
+        // move back to the last valid page.
+        if (
+          nextPagination.totalPages > 0 &&
+          filters.page > nextPagination.totalPages
+        ) {
+          const next = new URLSearchParams(searchParams);
 
-            setSearchParams(next);
-          }
-        })
-      .catch((err) => setError(getErrorMessage(err, "Could not load notes.")))
+          next.set(
+            "page",
+            String(nextPagination.totalPages),
+          );
+
+          setSearchParams(next);
+        }
+      })
+      .catch((err) =>
+        setError(
+          getErrorMessage(err, "Could not load notes."),
+        ),
+      )
       .finally(() => setLoading(false));
   }, [filters]);
 
@@ -106,6 +121,7 @@ function Notes() {
       next.set(key, value);
     }
 
+    // Any filter change resets pagination back to page 1.
     if (key !== "page") {
       next.delete("page");
     }
@@ -114,14 +130,21 @@ function Notes() {
   }
 
   const subjectsForDept = filters.deptId
-    ? subjects.filter((s) => s.deptId.includes(Number(filters.deptId)))
+    ? subjects.filter((s) =>
+        s.deptId.includes(Number(filters.deptId)),
+      )
     : subjects;
 
   function departmentName(deptId) {
-    return departments.find((d) => d.deptId === deptId)?.deptName;
+    return departments.find(
+      (d) => d.deptId === deptId,
+    )?.deptName;
   }
+
   function subjectName(subjectId) {
-    return subjects.find((s) => s.subjectId === subjectId)?.subjectName;
+    return subjects.find(
+      (s) => s.subjectId === subjectId,
+    )?.subjectName;
   }
 
   return (
@@ -130,19 +153,20 @@ function Notes() {
         <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[var(--muted)]">
           02 / Notes
         </span>
+
         <h1 className="text-4xl font-bold tracking-[-0.03em] sm:text-5xl">
           Browse notes
         </h1>
+
         <p className="text-sm text-[var(--muted)]">
-          {pagination.total} approved note{pagination.total === 1 ? "" : "s"} available.
+          {pagination.total} approved note
+          {pagination.total === 1 ? "" : "s"} available.
         </p>
       </div>
 
       <div className="mt-8">
-
         {/* Search */}
         <section className="rounded-[30px] border border-[var(--border)] bg-white p-3 shadow-[0_14px_40px_rgba(0,0,0,0.045)]">
-
           <form
             onSubmit={(event) => {
               event.preventDefault();
@@ -176,44 +200,47 @@ function Notes() {
               <input
                 type="text"
                 value={searchInput}
-                onChange={(event) => setSearchInput(event.target.value)}
+                onChange={(event) =>
+                  setSearchInput(event.target.value)
+                }
                 placeholder="Search notes, subjects, topics..."
                 className="
-            w-full
-            border-0
-            bg-transparent
-            p-0
-            text-[17px]
-            font-medium
-            tracking-[-0.01em]
-            text-black
-            outline-none
-            placeholder:text-[#a2a29d]
-            focus:ring-0
-          "
+                  w-full
+                  border-0
+                  bg-transparent
+                  p-0
+                  text-[17px]
+                  font-medium
+                  tracking-[-0.01em]
+                  text-black
+                  outline-none
+                  placeholder:text-[#a2a29d]
+                  focus:ring-0
+                "
               />
             </div>
 
             {/* Active status */}
             <div className="hidden shrink-0 items-center gap-2 pr-4 sm:flex">
               <span
-                className={`h-2 w-2 rounded-full transition-colors duration-200 ${searchInput.trim()
+                className={`h-2 w-2 rounded-full transition-colors duration-200 ${
+                  searchInput.trim()
                     ? "bg-[#72c8b0]"
                     : "bg-[#d7d7d2]"
-                  }`}
+                }`}
               />
 
               <span className="font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--muted)]">
-                {searchInput.trim() ? "Active" : "Browse all"}
+                {searchInput.trim()
+                  ? "Active"
+                  : "Browse all"}
               </span>
             </div>
           </form>
         </section>
 
-
         {/* Filters */}
         <section className="mt-5">
-
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <span className="font-mono text-[9px] font-bold uppercase tracking-[0.22em] text-[var(--muted)]">
@@ -227,32 +254,29 @@ function Notes() {
               filters.deptId ||
               filters.subjectId ||
               filters.search) && (
-                <button
-                  type="button"
-                  onClick={() => setSearchParams({})}
-                  className="
-            font-mono
-            text-[9px]
-            font-bold
-            uppercase
-            tracking-[0.18em]
-            text-[var(--muted)]
-            transition-colors
-            duration-200
-            hover:text-black
-          "
-                >
-                  Clear all
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => setSearchParams({})}
+                className="
+                  font-mono
+                  text-[9px]
+                  font-bold
+                  uppercase
+                  tracking-[0.18em]
+                  text-[var(--muted)]
+                  transition-colors
+                  duration-200
+                  hover:text-black
+                "
+              >
+                Clear all
+              </button>
+            )}
           </div>
 
-
           <div className="grid gap-3 md:grid-cols-3">
-
             {/* Department */}
             <div className="rounded-[22px] border border-[var(--border)] bg-white p-3 transition-shadow duration-200 hover:shadow-[0_8px_24px_rgba(0,0,0,0.04)]">
-
               <label className="mb-2 block px-1 font-mono text-[9px] font-bold uppercase tracking-[0.2em] text-[var(--muted)]">
                 Department
               </label>
@@ -260,7 +284,10 @@ function Notes() {
               <select
                 value={filters.deptId}
                 onChange={(event) => {
-                  const next = new URLSearchParams(searchParams);
+                  const next = new URLSearchParams(
+                    searchParams,
+                  );
+
                   const value = event.target.value;
 
                   if (value) {
@@ -275,23 +302,23 @@ function Notes() {
                   setSearchParams(next);
                 }}
                 className="
-            w-full
-            appearance-none
-            rounded-[15px]
-            border
-            border-[#e7e7e3]
-            bg-[#f7f7f4]
-            px-3
-            py-2.5
-            text-sm
-            font-medium
-            text-black
-            outline-none
-            transition
-            duration-200
-            focus:border-black
-            focus:bg-white
-          "
+                  w-full
+                  appearance-none
+                  rounded-[15px]
+                  border
+                  border-[#e7e7e3]
+                  bg-[#f7f7f4]
+                  px-3
+                  py-2.5
+                  text-sm
+                  font-medium
+                  text-black
+                  outline-none
+                  transition
+                  duration-200
+                  focus:border-black
+                  focus:bg-white
+                "
               >
                 <option value="">All departments</option>
 
@@ -306,10 +333,8 @@ function Notes() {
               </select>
             </div>
 
-
             {/* Subject */}
             <div className="rounded-[22px] border border-[var(--border)] bg-white p-3 transition-shadow duration-200 hover:shadow-[0_8px_24px_rgba(0,0,0,0.04)]">
-
               <label className="mb-2 block px-1 font-mono text-[9px] font-bold uppercase tracking-[0.2em] text-[var(--muted)]">
                 Subject
               </label>
@@ -317,26 +342,29 @@ function Notes() {
               <select
                 value={filters.subjectId}
                 onChange={(event) =>
-                  updateFilter("subjectId", event.target.value)
+                  updateFilter(
+                    "subjectId",
+                    event.target.value,
+                  )
                 }
                 className="
-            w-full
-            appearance-none
-            rounded-[15px]
-            border
-            border-[#e7e7e3]
-            bg-[#f7f7f4]
-            px-3
-            py-2.5
-            text-sm
-            font-medium
-            text-black
-            outline-none
-            transition
-            duration-200
-            focus:border-black
-            focus:bg-white
-          "
+                  w-full
+                  appearance-none
+                  rounded-[15px]
+                  border
+                  border-[#e7e7e3]
+                  bg-[#f7f7f4]
+                  px-3
+                  py-2.5
+                  text-sm
+                  font-medium
+                  text-black
+                  outline-none
+                  transition
+                  duration-200
+                  focus:border-black
+                  focus:bg-white
+                "
               >
                 <option value="">All subjects</option>
 
@@ -351,10 +379,8 @@ function Notes() {
               </select>
             </div>
 
-
             {/* Semester */}
             <div className="rounded-[22px] border border-[var(--border)] bg-white p-3 transition-shadow duration-200 hover:shadow-[0_8px_24px_rgba(0,0,0,0.04)]">
-
               <label className="mb-2 block px-1 font-mono text-[9px] font-bold uppercase tracking-[0.2em] text-[var(--muted)]">
                 Semester
               </label>
@@ -362,40 +388,39 @@ function Notes() {
               <select
                 value={filters.semester}
                 onChange={(event) =>
-                  updateFilter("semester", event.target.value)
+                  updateFilter(
+                    "semester",
+                    event.target.value,
+                  )
                 }
                 className="
-            w-full
-            appearance-none
-            rounded-[15px]
-            border
-            border-[#e7e7e3]
-            bg-[#f7f7f4]
-            px-3
-            py-2.5
-            text-sm
-            font-medium
-            text-black
-            outline-none
-            transition
-            duration-200
-            focus:border-black
-            focus:bg-white
-          "
+                  w-full
+                  appearance-none
+                  rounded-[15px]
+                  border
+                  border-[#e7e7e3]
+                  bg-[#f7f7f4]
+                  px-3
+                  py-2.5
+                  text-sm
+                  font-medium
+                  text-black
+                  outline-none
+                  transition
+                  duration-200
+                  focus:border-black
+                  focus:bg-white
+                "
               >
                 <option value="">All semesters</option>
 
                 {SEMESTERS.map((sem) => (
-                  <option
-                    key={sem}
-                    value={sem}
-                  >
+                  <option key={sem} value={sem}>
                     Semester {sem}
                   </option>
                 ))}
               </select>
             </div>
-
           </div>
         </section>
       </div>
@@ -425,7 +450,9 @@ function Notes() {
         <Pagination
           page={pagination.page}
           totalPages={pagination.totalPages}
-          onChange={(page) => updateFilter("page", page)}
+          onChange={(page) =>
+            updateFilter("page", page)
+          }
         />
       </div>
     </Container>

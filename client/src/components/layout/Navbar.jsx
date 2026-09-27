@@ -13,10 +13,11 @@ const linkClass = ({ isActive }) =>
   `group relative flex h-full items-center gap-2 px-5
    text-[11px] font-bold uppercase tracking-[0.17em]
    transition-colors duration-200
-   ${isActive
-    ? "text-[var(--foreground)]"
-    : "text-[var(--muted)] hover:text-[var(--foreground)]"
-  }
+   ${
+     isActive
+       ? "text-[var(--foreground)]"
+       : "text-[var(--muted)] hover:text-[var(--foreground)]"
+   }
 
    after:absolute
    after:bottom-[-1px]
@@ -28,10 +29,11 @@ const linkClass = ({ isActive }) =>
    after:duration-500
    after:ease-[cubic-bezier(0.22,1,0.36,1)]
 
-   ${isActive
-    ? "after:w-full"
-    : "after:w-0 group-hover:after:w-full"
-  }`;
+   ${
+     isActive
+       ? "after:w-full"
+       : "after:w-0 group-hover:after:w-full"
+   }`;
 
 /* =========================================================
    MOBILE NAV LINK
@@ -43,10 +45,11 @@ const mobileLinkClass = ({ isActive }) =>
    py-4
    text-sm font-bold uppercase tracking-[0.14em]
    transition-colors duration-200
-   ${isActive
-    ? "text-[var(--foreground)]"
-    : "text-[var(--muted)] hover:text-[var(--foreground)]"
-  }
+   ${
+     isActive
+       ? "text-[var(--foreground)]"
+       : "text-[var(--muted)] hover:text-[var(--foreground)]"
+   }
 
    after:absolute
    after:bottom-[-1px]
@@ -58,10 +61,11 @@ const mobileLinkClass = ({ isActive }) =>
    after:duration-500
    after:ease-[cubic-bezier(0.22,1,0.36,1)]
 
-   ${isActive
-    ? "after:w-full"
-    : "after:w-0 group-hover:after:w-full"
-  }`;
+   ${
+     isActive
+       ? "after:w-full"
+       : "after:w-0 group-hover:after:w-full"
+   }`;
 
 function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -231,9 +235,10 @@ function Navbar() {
             >
               <span>Notes</span>
             </NavLink>
+
             {/* ------------------------------------------------
-                  TAGGED NOTES
-              ------------------------------------------------ */}
+                TAGGED NOTES
+            ------------------------------------------------ */}
 
             {isAuthenticated &&
               user?.role !== ROLES.ADMIN && (
@@ -244,149 +249,135 @@ function Navbar() {
                   <span>Tagged</span>
                 </NavLink>
               )}
+
             {/* ------------------------------------------------
                 UPLOAD
             ------------------------------------------------ */}
 
-            {isAuthenticated && user?.role !== ROLES.ADMIN && (
-              <>
-                {/* UPLOAD */}
-                <NavLink
-                  to="/upload"
-                  className={linkClass}
-                >
-                  <span>Upload</span>
-                </NavLink>
+            {isAuthenticated &&
+              user?.role !== ROLES.ADMIN && (
+                <>
+                  {/* UPLOAD */}
 
-                {/* HISTORY */}
-                <div
-                  className="relative flex h-full items-center"
-                  onMouseEnter={() => setHistoryOpen(true)}
-                  onMouseLeave={() => setHistoryOpen(false)}
-                >
-                  <button
-                    type="button"
-                    onClick={() => setHistoryOpen((open) => !open)}
-                    className={`
-          group relative flex h-full items-center gap-2 px-5
-          text-[11px] font-bold uppercase tracking-[0.17em]
-          transition-colors duration-200
-          ${historyOpen
-                        ? "text-[var(--foreground)]"
-                        : "text-[var(--muted)] hover:text-[var(--foreground)]"
-                      }
-
-          after:absolute
-          after:bottom-[-1px]
-          after:left-0
-          after:h-[2px]
-          after:bg-[var(--foreground)]
-          after:content-['']
-          after:transition-all
-          after:duration-500
-          after:ease-[cubic-bezier(0.22,1,0.36,1)]
-
-          ${historyOpen ? "after:w-full" : "after:w-0"}
-        `}
+                  <NavLink
+                    to="/upload"
+                    className={linkClass}
                   >
-                    <span>History</span>
+                    <span>Upload</span>
+                  </NavLink>
 
-                    <span
-                      className={`
-            text-[10px]
-            transition-transform
-            duration-200
-            ${historyOpen ? "rotate-180" : ""}
-          `}
-                    >
-                      ↓
-                    </span>
-                  </button>
+                  {/* HISTORY */}
 
-                  {/* History dropdown */}
-                  {historyOpen && (
-                    <div
-                      className="
-            absolute
-            right-0
-            top-[calc(100%-1px)]
-            w-[230px]
-            border
-            border-[var(--border)]
-            bg-[var(--background)]
-            p-2
-            shadow-[0_18px_45px_rgba(0,0,0,0.08)]
-          "
+                  <div
+                    className="relative flex h-full items-center"
+                    onMouseEnter={() => setHistoryOpen(true)}
+                    onMouseLeave={() => setHistoryOpen(false)}
+                  >
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setHistoryOpen((open) => !open)
+                      }
+                      className={linkClass({
+                        isActive: historyOpen,
+                      })}
                     >
-                      <div className="px-3 pb-2 pt-2">
-                        <span
-                          className="
-                font-mono
-                text-[8px]
-                font-bold
-                uppercase
-                tracking-[0.2em]
-                text-[var(--muted)]
-              "
+                      <span>History</span>
+                    </button>
+
+                    {/* History dropdown */}
+
+                    {historyOpen && (
+                      <div
+                        className="
+                          absolute
+                          right-0
+                          top-[calc(100%-1px)]
+                          w-[230px]
+                          border
+                          border-[var(--border)]
+                          bg-[var(--background)]
+                          p-2
+                          shadow-[0_18px_45px_rgba(0,0,0,0.08)]
+                        "
+                      >
+                        <div className="px-3 pb-2 pt-2">
+                          <span
+                            className="
+                              font-mono
+                              text-[8px]
+                              font-bold
+                              uppercase
+                              tracking-[0.2em]
+                              text-[var(--muted)]
+                            "
+                          >
+                            StudySnap / History
+                          </span>
+                        </div>
+
+                        <NavLink
+                          to="/uploads"
+                          onClick={() =>
+                            setHistoryOpen(false)
+                          }
+                          className={({ isActive }) => `
+                            group flex items-center justify-between
+                            rounded-[12px]
+                            px-3 py-3
+                            text-[10px]
+                            font-bold
+                            uppercase
+                            tracking-[0.14em]
+                            transition-colors
+                            duration-200
+                            ${
+                              isActive
+                                ? "bg-[#b9eadc] text-black"
+                                : "text-[var(--foreground)] hover:bg-[#f1f1ed]"
+                            }
+                          `}
                         >
-                          StudySnap / History
-                        </span>
+                          <span>Upload history</span>
+
+                          <span className="transition-transform duration-200 group-hover:translate-x-1">
+                            →
+                          </span>
+                        </NavLink>
+
+                        <NavLink
+                          to="/download-history"
+                          onClick={() =>
+                            setHistoryOpen(false)
+                          }
+                          className={({ isActive }) => `
+                            group flex items-center justify-between
+                            rounded-[12px]
+                            px-3 py-3
+                            text-[10px]
+                            font-bold
+                            uppercase
+                            tracking-[0.14em]
+                            transition-colors
+                            duration-200
+                            ${
+                              isActive
+                                ? "bg-[#b9eadc] text-black"
+                                : "text-[var(--foreground)] hover:bg-[#f1f1ed]"
+                            }
+                          `}
+                        >
+                          <span>Download history</span>
+
+                          <span className="transition-transform duration-200 group-hover:translate-x-1">
+                            →
+                          </span>
+                        </NavLink>
                       </div>
-
-                      <NavLink
-                        to="/uploads"
-                        onClick={() => setHistoryOpen(false)}
-                        className={({ isActive }) => `
-              group flex items-center justify-between
-              rounded-[12px]
-              px-3 py-3
-              text-[10px]
-              font-bold
-              uppercase
-              tracking-[0.14em]
-              transition-colors
-              duration-200
-              ${isActive
-                            ? "bg-[#b9eadc] text-black"
-                            : "text-[var(--foreground)] hover:bg-[#f1f1ed]"
-                          }
-            `}
-                      >
-                        <span>Upload history</span>
-                        <span className="transition-transform duration-200 group-hover:translate-x-1">
-                          →
-                        </span>
-                      </NavLink>
-
-                      <NavLink
-                        to="/download-history"
-                        onClick={() => setHistoryOpen(false)}
-                        className={({ isActive }) => `
-              group flex items-center justify-between
-              rounded-[12px]
-              px-3 py-3
-              text-[10px]
-              font-bold
-              uppercase
-              tracking-[0.14em]
-              transition-colors
-              duration-200
-              ${isActive
-                            ? "bg-[#b9eadc] text-black"
-                            : "text-[var(--foreground)] hover:bg-[#f1f1ed]"
-                          }
-            `}
-                      >
-                        <span>Download history</span>
-                        <span className="transition-transform duration-200 group-hover:translate-x-1">
-                          →
-                        </span>
-                      </NavLink>
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
+                    )}
+                  </div>
+                </>
+              )}
           </div>
         </nav>
 
@@ -728,6 +719,7 @@ function Navbar() {
                       onClick={closeMenu}
                     >
                       <span>Upload history</span>
+
                       <span>→</span>
                     </NavLink>
 
@@ -737,6 +729,7 @@ function Navbar() {
                       onClick={closeMenu}
                     >
                       <span>Download history</span>
+
                       <span>→</span>
                     </NavLink>
                   </>
