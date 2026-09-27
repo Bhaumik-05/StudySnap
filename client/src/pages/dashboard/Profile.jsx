@@ -38,12 +38,23 @@ function Profile() {
 
   function buildChanges() {
     const changes = {};
+
     if (name.trim() !== user.name) changes.name = name.trim();
-    if (mobile.trim() !== (user.mobile || "")) changes.mobile = mobile.trim();
-    if (user.role === ROLES.STUDENT && sem && Number(sem) !== user.sem) {
+
+    if (mobile.trim() !== (user.mobile || "")) {
+      changes.mobile = mobile.trim();
+    }
+
+    if (
+      user.role === ROLES.STUDENT &&
+      sem &&
+      Number(sem) !== user.sem
+    ) {
       changes.sem = Number(sem);
     }
+
     if (password) changes.password = password;
+
     return changes;
   }
 
@@ -54,23 +65,35 @@ function Profile() {
       const err = validateName(changes.name);
       if (err) nextErrors.name = err;
     }
+
     if ("mobile" in changes && changes.mobile) {
-      const err = validateMobile(changes.mobile, { required: false });
+      const err = validateMobile(changes.mobile, {
+        required: false,
+      });
+
       if (err) nextErrors.mobile = err;
     }
+
     if ("sem" in changes) {
-      const err = validateSemester(changes.sem, { required: true });
+      const err = validateSemester(changes.sem, {
+        required: true,
+      });
+
       if (err) nextErrors.sem = err;
     }
+
     if ("password" in changes) {
       const err = validatePassword(changes.password);
-      if (err) nextErrors.password = err;
-      else if (password !== confirmPassword) {
+
+      if (err) {
+        nextErrors.password = err;
+      } else if (password !== confirmPassword) {
         nextErrors.confirmPassword = "Passwords do not match";
       }
     }
 
     setErrors(nextErrors);
+
     return Object.keys(nextErrors).length === 0;
   }
 
@@ -80,21 +103,29 @@ function Profile() {
     setSuccessMessage("");
 
     const changes = buildChanges();
+
     if (Object.keys(changes).length === 0) {
       setSubmitError("Change at least one field before saving.");
       return;
     }
+
     if (!validate(changes)) return;
 
     setSubmitting(true);
+
     try {
       const response = await updateCurrentUser(changes);
+
       updateUser(response.data);
+
       setPassword("");
       setConfirmPassword("");
+
       setSuccessMessage("Profile updated successfully.");
     } catch (error) {
-      setSubmitError(getErrorMessage(error, "Could not update profile."));
+      setSubmitError(
+        getErrorMessage(error, "Could not update profile."),
+      );
     } finally {
       setSubmitting(false);
     }
@@ -103,95 +134,538 @@ function Profile() {
   if (!user) return null;
 
   return (
-    <Container className="py-10">
-      <div className="mx-auto flex max-w-xl flex-col gap-6">
-        <div className="border-b border-[var(--border)] pb-6">
-          <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[var(--muted)]">
-            Dashboard
-          </span>
-          <h1 className="mt-2 text-4xl font-bold tracking-[-0.03em]">
-            Your profile
-          </h1>
-          <p className="mt-1 text-sm text-[var(--muted)]">
-            {roleLabel(user.role)} · {user.userId}
-          </p>
+    <Container className="py-8 sm:py-12">
+      {/* =========================================================
+          HEADER
+          ========================================================= */}
+      <header className="relative overflow-hidden border-b border-[var(--border)] pb-10">
+        {/* Large editorial number */}
+        <div
+          className="
+            pointer-events-none
+            absolute
+            -right-4
+            -top-12
+            select-none
+            text-[clamp(8rem,18vw,16rem)]
+            font-black
+            leading-none
+            tracking-[-0.13em]
+            text-[var(--surface-muted)]
+          "
+        >
+          05
         </div>
 
-        <form
-          className="flex flex-col gap-4 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-6"
-          onSubmit={handleSubmit}
-          noValidate
-        >
-          {submitError && <Alert variant="error">{submitError}</Alert>}
-          {successMessage && <Alert variant="success">{successMessage}</Alert>}
-
-          <Input label="Email" value={user.email} disabled hint="Email cannot be changed." />
-
-          <Input
-            label="Full name"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            error={errors.name}
-          />
-
-          <Input
-            label="Mobile number"
-            value={mobile}
-            onChange={(event) => setMobile(event.target.value)}
-            error={errors.mobile}
-            hint="10 digits, no spaces or dashes"
-          />
-
-          <Input
-            label="Department"
-            value={user.deptId ? `Department #${user.deptId}` : "—"}
-            disabled
-            hint="Contact an administrator to change your department."
-          />
-
-          {user.role === ROLES.STUDENT && (
-            <Select
-              label="Semester"
-              value={sem}
-              onChange={(event) => setSem(event.target.value)}
-              error={errors.sem}
+        <div className="relative">
+          {/* Top metadata */}
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <span
+              className="
+                font-mono
+                text-[10px]
+                font-bold
+                uppercase
+                tracking-[0.2em]
+                text-[var(--muted)]
+              "
             >
-              {SEMESTERS.map((s) => (
-                <option key={s} value={s}>
-                  Semester {s}
-                </option>
-              ))}
-            </Select>
-          )}
+              StudySnap / Account
+            </span>
 
-          <div className="border-t border-[var(--border)] pt-4">
-            <p className="mb-3 text-sm font-medium">Change password</p>
-            <div className="flex flex-col gap-4">
-              <Input
-                label="New password"
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                error={errors.password}
-                placeholder="Leave blank to keep current password"
-              />
-              {password && (
-                <Input
-                  label="Confirm new password"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(event) => setConfirmPassword(event.target.value)}
-                  error={errors.confirmPassword}
-                />
-              )}
+            <span
+              className="
+                font-mono
+                text-[9px]
+                font-bold
+                uppercase
+                tracking-[0.16em]
+                text-[var(--muted-light)]
+              "
+            >
+              Profile / 05
+            </span>
+          </div>
+
+          {/* Main heading */}
+          <div className="mt-12 max-w-5xl">
+            <span
+              className="
+                font-mono
+                text-[10px]
+                font-bold
+                uppercase
+                tracking-[0.18em]
+                text-[var(--muted-light)]
+              "
+            >
+              Personal workspace
+            </span>
+
+            <h1
+              className="
+                mt-3
+                text-[clamp(4rem,10vw,8rem)]
+                font-black
+                leading-[0.82]
+                tracking-[-0.09em]
+              "
+            >
+              Your profile.
+            </h1>
+
+            <p
+              className="
+                mt-8
+                max-w-2xl
+                text-sm
+                leading-7
+                text-[var(--muted)]
+                sm:text-base
+              "
+            >
+              Manage your account information and keep your
+              StudySnap profile up to date.
+            </p>
+          </div>
+        </div>
+      </header>
+
+      {/* =========================================================
+          PROFILE AREA
+          ========================================================= */}
+      <div className="grid gap-14 py-12 lg:grid-cols-[280px_minmax(0,1fr)]">
+        {/* =======================================================
+            LEFT INFORMATION COLUMN
+            ======================================================= */}
+        <aside>
+          <div className="lg:sticky lg:top-8">
+            {/* Section label */}
+            <div className="flex items-center gap-3">
+              <span
+                className="
+                  font-mono
+                  text-[10px]
+                  font-bold
+                  tracking-[0.16em]
+                  text-[var(--muted-light)]
+                "
+              >
+                05.1
+              </span>
+
+              <span className="h-px w-8 bg-[var(--border)]" />
+
+              <span
+                className="
+                  font-mono
+                  text-[10px]
+                  font-bold
+                  uppercase
+                  tracking-[0.18em]
+                  text-[var(--muted)]
+                "
+              >
+                Account
+              </span>
+            </div>
+
+            {/* Description */}
+            <div className="mt-6 border-t border-[var(--foreground)] pt-5">
+              <h2
+                className="
+                  text-3xl
+                  font-black
+                  tracking-[-0.05em]
+                "
+              >
+                Personal details
+              </h2>
+
+              <p
+                className="
+                  mt-3
+                  text-sm
+                  leading-6
+                  text-[var(--muted)]
+                "
+              >
+                Update the information associated with your
+                StudySnap account.
+              </p>
+            </div>
+
+            {/* Account ID */}
+            <div className="mt-8 border-t border-[var(--border)] pt-5">
+              <span
+                className="
+                  font-mono
+                  text-[8px]
+                  font-bold
+                  uppercase
+                  tracking-[0.16em]
+                  text-[var(--muted-light)]
+                "
+              >
+                Account ID
+              </span>
+
+              <p className="mt-2 font-mono text-xs font-bold">
+                {user.userId}
+              </p>
+            </div>
+
+            {/* Role */}
+            <div className="mt-6 border-t border-[var(--border)] pt-5">
+              <span
+                className="
+                  font-mono
+                  text-[8px]
+                  font-bold
+                  uppercase
+                  tracking-[0.16em]
+                  text-[var(--muted-light)]
+                "
+              >
+                Role
+              </span>
+
+              <p className="mt-2 text-sm font-semibold">
+                {roleLabel(user.role)}
+              </p>
+            </div>
+
+            {/* Department */}
+            <div className="mt-6 border-t border-[var(--border)] pt-5">
+              <span
+                className="
+                  font-mono
+                  text-[8px]
+                  font-bold
+                  uppercase
+                  tracking-[0.16em]
+                  text-[var(--muted-light)]
+                "
+              >
+                Department
+              </span>
+
+              <p className="mt-2 text-sm font-semibold">
+                {user.deptId
+                  ? `Department #${user.deptId}`
+                  : "—"}
+              </p>
+            </div>
+          </div>
+        </aside>
+
+        {/* =======================================================
+            FORM
+            ======================================================= */}
+        <main>
+          {/* Form heading */}
+          <div className="border-t border-[var(--foreground)] pt-6">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <span
+                  className="
+                    font-mono
+                    text-[9px]
+                    font-bold
+                    uppercase
+                    tracking-[0.16em]
+                    text-[var(--muted-light)]
+                  "
+                >
+                  05.2 / Edit
+                </span>
+
+                <h2
+                  className="
+                    mt-2
+                    text-3xl
+                    font-black
+                    tracking-[-0.05em]
+                    sm:text-4xl
+                  "
+                >
+                  Update information
+                </h2>
+              </div>
+
+              <span
+                className="
+                  font-mono
+                  text-[9px]
+                  font-bold
+                  uppercase
+                  tracking-[0.16em]
+                  text-[var(--muted-light)]
+                "
+              >
+                Account settings
+              </span>
             </div>
           </div>
 
-          <Button type="submit" variant="accent" loading={submitting} className="mt-2">
-            Save changes
-          </Button>
-        </form>
+          <form
+            className="mt-8"
+            onSubmit={handleSubmit}
+            noValidate
+          >
+            {/* ===================================================
+                MESSAGES
+                =================================================== */}
+            {(submitError || successMessage) && (
+              <div className="mb-8">
+                {submitError && (
+                  <Alert variant="error">
+                    {submitError}
+                  </Alert>
+                )}
+
+                {successMessage && (
+                  <Alert variant="success">
+                    {successMessage}
+                  </Alert>
+                )}
+              </div>
+            )}
+
+            {/* ===================================================
+                EMAIL
+                =================================================== */}
+            <div className="border-b border-[var(--border)] py-7">
+              <Input
+                label="Email"
+                value={user.email}
+                disabled
+                hint="Email cannot be changed."
+              />
+            </div>
+
+            {/* ===================================================
+                FULL NAME
+                =================================================== */}
+            <div className="border-b border-[var(--border)] py-7">
+              <Input
+                label="Full name"
+                value={name}
+                onChange={(event) =>
+                  setName(event.target.value)
+                }
+                error={errors.name}
+              />
+            </div>
+
+            {/* ===================================================
+                MOBILE
+                =================================================== */}
+            <div className="border-b border-[var(--border)] py-7">
+              <Input
+                label="Mobile number"
+                value={mobile}
+                onChange={(event) =>
+                  setMobile(event.target.value)
+                }
+                error={errors.mobile}
+                hint="10 digits, no spaces or dashes"
+              />
+            </div>
+
+            {/* ===================================================
+                DEPARTMENT
+                =================================================== */}
+            <div className="border-b border-[var(--border)] py-7">
+              <Input
+                label="Department"
+                value={
+                  user.deptId
+                    ? `Department #${user.deptId}`
+                    : "—"
+                }
+                disabled
+                hint="Contact an administrator to change your department."
+              />
+            </div>
+
+            {/* ===================================================
+                SEMESTER
+                =================================================== */}
+            {user.role === ROLES.STUDENT && (
+              <div className="border-b border-[var(--border)] py-7">
+                <Select
+                  label="Semester"
+                  value={sem}
+                  onChange={(event) =>
+                    setSem(event.target.value)
+                  }
+                  error={errors.sem}
+                >
+                  {SEMESTERS.map((s) => (
+                    <option key={s} value={s}>
+                      Semester {s}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+            )}
+
+            {/* ===================================================
+                PASSWORD
+                =================================================== */}
+            <div className="border-b border-[var(--border)] py-8">
+              <div className="mb-6">
+                <span
+                  className="
+                    font-mono
+                    text-[9px]
+                    font-bold
+                    uppercase
+                    tracking-[0.16em]
+                    text-[var(--muted-light)]
+                  "
+                >
+                  05.3 / Security
+                </span>
+
+                <h3
+                  className="
+                    mt-2
+                    text-2xl
+                    font-black
+                    tracking-[-0.04em]
+                  "
+                >
+                  Change password
+                </h3>
+
+                <p
+                  className="
+                    mt-2
+                    max-w-xl
+                    text-sm
+                    leading-6
+                    text-[var(--muted)]
+                  "
+                >
+                  Leave the password fields blank if you want
+                  to keep your current password.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-7">
+                <Input
+                  label="New password"
+                  type="password"
+                  value={password}
+                  onChange={(event) =>
+                    setPassword(event.target.value)
+                  }
+                  error={errors.password}
+                  placeholder="Leave blank to keep current password"
+                />
+
+                {password && (
+                  <Input
+                    label="Confirm new password"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(event) =>
+                      setConfirmPassword(event.target.value)
+                    }
+                    error={errors.confirmPassword}
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* ===================================================
+                SAVE AREA
+                =================================================== */}
+            <div
+              className="
+                mt-8
+                flex
+                flex-col
+                gap-5
+                border-t
+                border-[var(--foreground)]
+                pt-6
+                sm:flex-row
+                sm:items-center
+                sm:justify-between
+              "
+            >
+              <div>
+                <span
+                  className="
+                    font-mono
+                    text-[9px]
+                    font-bold
+                    uppercase
+                    tracking-[0.16em]
+                    text-[var(--muted-light)]
+                  "
+                >
+                  Save changes
+                </span>
+
+                <p
+                  className="
+                    mt-1
+                    text-xs
+                    text-[var(--muted)]
+                  "
+                >
+                  Your updated information will be reflected
+                  across StudySnap.
+                </p>
+              </div>
+
+              <Button
+                type="submit"
+                variant="accent"
+                loading={submitting}
+                className="
+                  min-w-[190px]
+                  px-8
+                  py-3
+                  text-xs
+                  font-bold
+                  uppercase
+                  tracking-[0.14em]
+                "
+              >
+                Save changes →
+              </Button>
+            </div>
+          </form>
+        </main>
       </div>
+
+      {/* =========================================================
+          FOOTER
+          ========================================================= */}
+      <footer
+        className="
+          flex
+          items-center
+          justify-between
+          border-t
+          border-[var(--border)]
+          pt-5
+          font-mono
+          text-[9px]
+          font-bold
+          uppercase
+          tracking-[0.16em]
+          text-[var(--muted-light)]
+        "
+      >
+        <span>StudySnap / Profile</span>
+        <span>05 / 05</span>
+      </footer>
     </Container>
   );
 }

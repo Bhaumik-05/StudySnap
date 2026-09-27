@@ -232,7 +232,7 @@ function Navbar() {
                 UPLOAD
             ------------------------------------------------ */}
 
-            {isAuthenticated && (
+            {isAuthenticated && user?.role !== ROLES.ADMIN && (
               <NavLink
                 to="/upload"
                 className={linkClass}
@@ -292,7 +292,7 @@ function Navbar() {
 
       {/* Dashboard / User */}
       <NavLink
-        to="/dashboard"
+        to="/profile"
         className="
           group
           flex
@@ -603,7 +603,7 @@ function Navbar() {
 
               {/* Upload */}
 
-              {isAuthenticated && (
+              {isAuthenticated && user?.role !== ROLES.ADMIN && (
                 <NavLink
                   to="/upload"
                   className={mobileLinkClass}
@@ -658,7 +658,7 @@ function Navbar() {
 
               {isAuthenticated && (
                 <NavLink
-                  to="/dashboard"
+                  to="/profile"
                   className={mobileLinkClass}
                   onClick={closeMenu}
                 >
