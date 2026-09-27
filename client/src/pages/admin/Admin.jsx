@@ -963,9 +963,18 @@ function Admin() {
               Control room
             </div>
 
-            <h1 className="mt-2 text-[clamp(4rem,10vw,8rem)] font-black leading-[0.82] tracking-[-0.09em]">
-              Admin.
-            </h1>
+            <h1
+                className="
+                  mt-2
+                  text-[clamp(3.2rem,5vw,5rem)]
+                  font-black
+                  leading-[0.82]
+                  tracking-[-0.085em]
+                  text-[var(--foreground)]
+                "
+              >
+                Admin.
+              </h1>
 
             <p className="mt-7 max-w-xl text-sm leading-6 text-[var(--muted)] sm:text-base">
               Review submitted notes, manage the academic subject

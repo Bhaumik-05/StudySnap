@@ -187,67 +187,15 @@ function Navbar() {
             "
           >
             {/* ------------------------------------------------
-                NOTES
+                DASHBOARD
             ------------------------------------------------ */}
 
-            <NavLink
-              to="/notes"
-              className={linkClass}
-            >
-              <span
-                className="
-                  font-mono
-                  text-[8px]
-                  text-[var(--muted-light)]
-                "
-              >
-                01
-              </span>
-
-              <span>Notes</span>
-            </NavLink>
-
-            {/* ------------------------------------------------
-                DEPARTMENTS
-            ------------------------------------------------ */}
-
-            <NavLink
-              to="/departments"
-              className={linkClass}
-            >
-              <span
-                className="
-                  font-mono
-                  text-[8px]
-                  text-[var(--muted-light)]
-                "
-              >
-                02
-              </span>
-
-              <span>Departments</span>
-            </NavLink>
-
-            {/* ------------------------------------------------
-                UPLOAD
-            ------------------------------------------------ */}
-
-            {isAuthenticated && user?.role !== ROLES.ADMIN && (
+            {isAuthenticated && (
               <NavLink
-                to="/upload"
+                to="/dashboard"
                 className={linkClass}
               >
-                <span
-                  className="
-                    font-mono
-                    text-[8px]
-                    text-[var(--muted-light)]
-                  "
-                >
-                  03
-                </span>
-
-                <span>Upload</span>
+                <span>Dashboard</span>
               </NavLink>
             )}
 
@@ -261,17 +209,43 @@ function Navbar() {
                   to="/admin"
                   className={linkClass}
                 >
-                  <span
-                    className="
-                      font-mono
-                      text-[8px]
-                      text-[var(--muted-light)]
-                    "
-                  >
-                    04
-                  </span>
-
                   <span>Admin</span>
+                </NavLink>
+              )}
+
+            {/* ------------------------------------------------
+                DEPARTMENTS
+            ------------------------------------------------ */}
+
+            <NavLink
+              to="/departments"
+              className={linkClass}
+            >
+              <span>Departments</span>
+            </NavLink>
+
+            {/* ------------------------------------------------
+                NOTES
+            ------------------------------------------------ */}
+
+            <NavLink
+              to="/notes"
+              className={linkClass}
+            >
+              <span>Notes</span>
+            </NavLink>
+
+            {/* ------------------------------------------------
+                UPLOAD
+            ------------------------------------------------ */}
+
+            {isAuthenticated &&
+              user?.role !== ROLES.ADMIN && (
+                <NavLink
+                  to="/upload"
+                  className={linkClass}
+                >
+                  <span>Upload</span>
                 </NavLink>
               )}
           </div>
@@ -281,192 +255,190 @@ function Navbar() {
             DESKTOP RIGHT SIDE
         ================================================= */}
 
-        {/* =================================================
-    DESKTOP RIGHT SIDE
-================================================= */}
+        <div className="hidden items-center md:flex">
+          {isAuthenticated ? (
+            <div className="flex items-center">
 
-<div className="hidden items-center md:flex">
+              {/* User / Profile */}
 
-  {isAuthenticated ? (
-    <div className="flex items-center">
+              <NavLink
+                to="/profile"
+                className="
+                  group
+                  flex
+                  items-center
+                  gap-2
+                  border-l
+                  border-[var(--border)]
+                  pl-6
+                  text-[10px]
+                  font-bold
+                  uppercase
+                  tracking-[0.16em]
+                  text-[var(--foreground)]
+                "
+              >
+                <span className="max-w-[130px] truncate">
+                  {user?.name}
+                </span>
 
-      {/* Dashboard / User */}
-      <NavLink
-        to="/profile"
-        className="
-          group
-          flex
-          items-center
-          gap-2
-          border-l
-          border-[var(--border)]
-          pl-6
-          text-[10px]
-          font-bold
-          uppercase
-          tracking-[0.16em]
-          text-[var(--foreground)]
-        "
-      >
-        <span className="max-w-[130px] truncate">
-          {user?.name}
-        </span>
+                <span
+                  className="
+                    transition-transform
+                    duration-300
+                    group-hover:translate-x-1
+                  "
+                >
+                  →
+                </span>
+              </NavLink>
 
-        <span
-          className="
-            transition-transform
-            duration-300
-            group-hover:translate-x-1
-          "
-        >
-          →
-        </span>
-      </NavLink>
+              {/* Logout */}
 
-      {/* Logout */}
-      <button
-        type="button"
-        onClick={handleLogout}
-        disabled={loggingOut}
-        className="
-          group
-          ml-6
-          flex
-          items-center
-          gap-2
-          border-l
-          border-[var(--border)]
-          pl-6
-          text-[10px]
-          font-bold
-          uppercase
-          tracking-[0.16em]
-          text-[var(--muted)]
-          transition-colors
-          duration-200
-          hover:text-[var(--foreground)]
-          disabled:opacity-50
-        "
-      >
-        <span>
-          {loggingOut ? "Leaving…" : "Log out"}
-        </span>
+              <button
+                type="button"
+                onClick={handleLogout}
+                disabled={loggingOut}
+                className="
+                  group
+                  ml-6
+                  flex
+                  items-center
+                  gap-2
+                  border-l
+                  border-[var(--border)]
+                  pl-6
+                  text-[10px]
+                  font-bold
+                  uppercase
+                  tracking-[0.16em]
+                  text-[var(--muted)]
+                  transition-colors
+                  duration-200
+                  hover:text-[var(--foreground)]
+                  disabled:opacity-50
+                "
+              >
+                <span>
+                  {loggingOut ? "Leaving…" : "Log out"}
+                </span>
 
-        <span
-          className="
-            transition-transform
-            duration-300
-            group-hover:translate-x-1
-          "
-        >
-          →
-        </span>
-      </button>
-    </div>
-  ) : (
-    <div className="flex items-center">
+                <span
+                  className="
+                    transition-transform
+                    duration-300
+                    group-hover:translate-x-1
+                  "
+                >
+                  →
+                </span>
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center">
 
-      {/* =================================================
-          LOGIN
-      ================================================= */}
+              {/* =================================================
+                  LOGIN
+              ================================================= */}
 
-      <Link
-        to="/login"
-        className="
-          group
-          flex
-          items-center
-          gap-3
-          border-r
-          border-[var(--border)]
-          pr-6
-          text-[10px]
-          font-bold
-          uppercase
-          tracking-[0.16em]
-          text-[var(--foreground)]
-        "
-      >
-        {/* Only arrow moves */}
-        <span
-          className="
-            inline-block
-            transition-transform
-            duration-300
-            group-hover:translate-x-1
-          "
-        >
-          →
-        </span>
+              <Link
+                to="/login"
+                className="
+                  group
+                  flex
+                  items-center
+                  gap-3
+                  border-r
+                  border-[var(--border)]
+                  pr-6
+                  text-[10px]
+                  font-bold
+                  uppercase
+                  tracking-[0.16em]
+                  text-[var(--foreground)]
+                "
+              >
+                {/* Only arrow moves */}
 
-        <span>
-          Log in
-        </span>
-      </Link>
+                <span
+                  className="
+                    inline-block
+                    transition-transform
+                    duration-300
+                    group-hover:translate-x-1
+                  "
+                >
+                  →
+                </span>
 
-      {/* =================================================
-          JOIN STUDYSNAP
-      ================================================= */}
+                <span>
+                  Log in
+                </span>
+              </Link>
 
-      <Link
-        to="/register"
-        className="
-          group
-          ml-6
-          flex
-          items-center
-          gap-3
-        "
-      >
-        {/* Mint pill — completely static */}
+              {/* =================================================
+                  JOIN STUDYSNAP
+              ================================================= */}
 
-        <span
-          className="
-            rounded-full
-            bg-[var(--accent)]
-            px-6
-            py-3.5
-            text-[10px]
-            font-bold
-            uppercase
-            tracking-[0.16em]
-            text-[var(--accent-foreground)]
-          "
-        >
-          Join StudySnap
-        </span>
+              <Link
+                to="/register"
+                className="
+                  group
+                  ml-6
+                  flex
+                  items-center
+                  gap-3
+                "
+              >
+                {/* Mint pill — completely static */}
 
-        {/* Circular arrow — only this reacts */}
+                <span
+                  className="
+                    rounded-full
+                    bg-[var(--accent)]
+                    px-6
+                    py-3.5
+                    text-[10px]
+                    font-bold
+                    uppercase
+                    tracking-[0.16em]
+                    text-[var(--accent-foreground)]
+                  "
+                >
+                  Join StudySnap
+                </span>
 
-        <span
-          className="
-            flex
-            h-10
-            w-10
-            items-center
-            justify-center
-            rounded-full
-            border
-            border-[var(--border)]
-            text-sm
-            text-[var(--foreground)]
-          "
-        >
-          <span
-            className="
-              inline-block
-              transition-transform
-              duration-300
-              group-hover:translate-x-1
-            "
-          >
-            →
-          </span>
-        </span>
-      </Link>
-    </div>
-  )}
-</div>
+                {/* Circular arrow — only this reacts */}
+
+                <span
+                  className="
+                    flex
+                    h-10
+                    w-10
+                    items-center
+                    justify-center
+                    rounded-full
+                    border
+                    border-[var(--border)]
+                    text-sm
+                    text-[var(--foreground)]
+                  "
+                >
+                  <span
+                    className="
+                      inline-block
+                      transition-transform
+                      duration-300
+                      group-hover:translate-x-1
+                    "
+                  >
+                    →
+                  </span>
+                </span>
+              </Link>
+            </div>
+          )}
+        </div>
 
         {/* =================================================
             MOBILE MENU BUTTON
@@ -553,75 +525,15 @@ function Navbar() {
 
             <nav className="flex flex-col">
 
-              {/* Notes */}
+              {/* Dashboard */}
 
-              <NavLink
-                to="/notes"
-                className={mobileLinkClass}
-                onClick={closeMenu}
-              >
-                <span className="flex items-center gap-3">
-                  <span
-                    className="
-                      font-mono
-                      text-[9px]
-                      text-[var(--muted-light)]
-                    "
-                  >
-                    01
-                  </span>
-
-                  Notes
-                </span>
-
-                <span>→</span>
-              </NavLink>
-
-              {/* Departments */}
-
-              <NavLink
-                to="/departments"
-                className={mobileLinkClass}
-                onClick={closeMenu}
-              >
-                <span className="flex items-center gap-3">
-                  <span
-                    className="
-                      font-mono
-                      text-[9px]
-                      text-[var(--muted-light)]
-                    "
-                  >
-                    02
-                  </span>
-
-                  Departments
-                </span>
-
-                <span>→</span>
-              </NavLink>
-
-              {/* Upload */}
-
-              {isAuthenticated && user?.role !== ROLES.ADMIN && (
+              {isAuthenticated && (
                 <NavLink
-                  to="/upload"
+                  to="/dashboard"
                   className={mobileLinkClass}
                   onClick={closeMenu}
                 >
-                  <span className="flex items-center gap-3">
-                    <span
-                      className="
-                        font-mono
-                        text-[9px]
-                        text-[var(--muted-light)]
-                      "
-                    >
-                      03
-                    </span>
-
-                    Upload
-                  </span>
+                  <span>Dashboard</span>
 
                   <span>→</span>
                 </NavLink>
@@ -636,57 +548,50 @@ function Navbar() {
                     className={mobileLinkClass}
                     onClick={closeMenu}
                   >
-                    <span className="flex items-center gap-3">
-                      <span
-                        className="
-                          font-mono
-                          text-[9px]
-                          text-[var(--muted-light)]
-                        "
-                      >
-                        04
-                      </span>
-
-                      Admin
-                    </span>
+                    <span>Admin</span>
 
                     <span>→</span>
                   </NavLink>
                 )}
 
-              {/* Dashboard */}
+              {/* Departments */}
 
-              {isAuthenticated && (
-                <NavLink
-                  to="/profile"
-                  className={mobileLinkClass}
-                  onClick={closeMenu}
-                >
-                  <span className="flex items-center gap-3">
-                    <span
-                      className="
-                        font-mono
-                        text-[9px]
-                        text-[var(--muted-light)]
-                      "
-                    >
-                      05
-                    </span>
+              <NavLink
+                to="/departments"
+                className={mobileLinkClass}
+                onClick={closeMenu}
+              >
+                <span>Departments</span>
 
-                    Dashboard
-                  </span>
+                <span>→</span>
+              </NavLink>
 
-                  <span
-                    className="
-                      max-w-[120px]
-                      truncate
-                      text-[var(--muted)]
-                    "
+              {/* Notes */}
+
+              <NavLink
+                to="/notes"
+                className={mobileLinkClass}
+                onClick={closeMenu}
+              >
+                <span>Notes</span>
+
+                <span>→</span>
+              </NavLink>
+
+              {/* Upload */}
+
+              {isAuthenticated &&
+                user?.role !== ROLES.ADMIN && (
+                  <NavLink
+                    to="/upload"
+                    className={mobileLinkClass}
+                    onClick={closeMenu}
                   >
-                    {user?.name}
-                  </span>
-                </NavLink>
-              )}
+                    <span>Upload</span>
+
+                    <span>→</span>
+                  </NavLink>
+                )}
             </nav>
 
             {/* =================================================
