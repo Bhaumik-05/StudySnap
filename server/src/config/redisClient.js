@@ -23,6 +23,7 @@ redisClient.on("error", (error) => {
  */
 if (!redisClient.isOpen) {
   await redisClient.connect();
+  console.log("Redis connected successfully");
 }
 
 export default redisClient;

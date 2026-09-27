@@ -8,10 +8,6 @@ const startServer = async () => {
     await connectDB();
     console.log("MongoDB connected to server.js");
 
-    // Connect Redis
-    await redisClient.connect();
-    console.log("Redis connected successfully");
-
     app.listen(env.PORT, "0.0.0.0", () => {
       console.log(`Server running on port ${env.PORT}`);
     });
