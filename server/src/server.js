@@ -1,7 +1,6 @@
 import app from "./app.js";
 import connectDB from "./config/db.js";
 import env from "./config/env.js";
-import redisClient from "./config/redisClient.js";
 
 const startServer = async () => {
   try {
