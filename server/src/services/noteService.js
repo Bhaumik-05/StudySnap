@@ -239,8 +239,18 @@ export const downloadNoteService = async (noteId, userId) => {
         downloadDate: new Date(),
     });
 
+    // CHANGE: Tell Cloudinary to deliver the PDF as a downloadable attachment
+    const downloadUrl = updatedNote.pdfUrl.replace(
+        "/upload/",
+        "/upload/fl_attachment/"
+    );
+
     return {
         pdfUrl: updatedNote.pdfUrl,
+
+        // CHANGE: Return the new download URL
+        downloadUrl,
+
         fileName: `${updatedNote.title}.pdf`,
         downloadCount: updatedNote.downloadCount,
     };

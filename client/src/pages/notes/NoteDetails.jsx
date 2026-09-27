@@ -199,18 +199,11 @@ function NoteDetails() {
        */
       const result = await downloadNote(noteId);
 
+      // CHANGE: Get the attachment URL returned by backend
       const {
-        pdfUrl: returnedPdfUrl,
-        fileName,
+        downloadUrl,
         downloadCount,
       } = result.data;
-
-      /*
-       * Keep the returned URL available for the page.
-       */
-      if (returnedPdfUrl) {
-        setPdfUrl(returnedPdfUrl);
-      }
 
       /*
        * Update the visible download count.
@@ -225,23 +218,13 @@ function NoteDetails() {
       );
 
       /*
-       * Trigger the actual browser download.
+       * CHANGE: Use Cloudinary's attachment URL.
+       *
+       * Cloudinary will deliver the PDF as a download
+       * instead of opening it in the PDF viewer.
        */
-      if (returnedPdfUrl) {
-        const link = document.createElement("a");
-
-        link.href = returnedPdfUrl;
-        link.download =
-          fileName ||
-          note.fileName ||
-          `${note.title}.pdf`;
-
-        link.target = "_blank";
-        link.rel = "noopener noreferrer";
-
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
+      if (downloadUrl) {
+        window.location.href = downloadUrl;
       }
     } catch (err) {
       setDownloadError(
