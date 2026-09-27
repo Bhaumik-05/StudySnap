@@ -269,18 +269,62 @@ function Navbar() {
                   {/* HISTORY */}
 
                   <div
-                    className="relative flex h-full items-center"
-                    onMouseEnter={() => setHistoryOpen(true)}
-                    onMouseLeave={() => setHistoryOpen(false)}
+                    className="
+                      relative
+                      flex
+                      h-full
+                      items-center
+                    "
+                    onMouseEnter={() =>
+                      setHistoryOpen(true)
+                    }
+                    onMouseLeave={() =>
+                      setHistoryOpen(false)
+                    }
                   >
                     <button
                       type="button"
                       onClick={() =>
                         setHistoryOpen((open) => !open)
                       }
-                      className={linkClass({
-                        isActive: historyOpen,
-                      })}
+                      className={`
+                        group
+                        relative
+                        flex
+                        h-full
+                        w-[100px]
+                        items-center
+                        justify-center
+                        px-0
+                        text-[11px]
+                        font-bold
+                        uppercase
+                        tracking-[0.17em]
+                        transition-colors
+                        duration-200
+
+                        ${
+                          historyOpen
+                            ? "text-[var(--foreground)]"
+                            : "text-[var(--muted)] hover:text-[var(--foreground)]"
+                        }
+
+                        after:absolute
+                        after:bottom-[-1px]
+                        after:left-0
+                        after:h-[2px]
+                        after:bg-[var(--foreground)]
+                        after:content-['']
+                        after:transition-all
+                        after:duration-500
+                        after:ease-[cubic-bezier(0.22,1,0.36,1)]
+
+                        ${
+                          historyOpen
+                            ? "after:w-full"
+                            : "after:w-0 group-hover:after:w-full"
+                        }
+                      `}
                     >
                       <span>History</span>
                     </button>
@@ -322,15 +366,20 @@ function Navbar() {
                             setHistoryOpen(false)
                           }
                           className={({ isActive }) => `
-                            group flex items-center justify-between
+                            group
+                            flex
+                            items-center
+                            justify-between
                             rounded-[12px]
-                            px-3 py-3
+                            px-3
+                            py-3
                             text-[10px]
                             font-bold
                             uppercase
                             tracking-[0.14em]
                             transition-colors
                             duration-200
+
                             ${
                               isActive
                                 ? "bg-[#b9eadc] text-black"
@@ -340,7 +389,13 @@ function Navbar() {
                         >
                           <span>Upload history</span>
 
-                          <span className="transition-transform duration-200 group-hover:translate-x-1">
+                          <span
+                            className="
+                              transition-transform
+                              duration-200
+                              group-hover:translate-x-1
+                            "
+                          >
                             →
                           </span>
                         </NavLink>
@@ -351,15 +406,20 @@ function Navbar() {
                             setHistoryOpen(false)
                           }
                           className={({ isActive }) => `
-                            group flex items-center justify-between
+                            group
+                            flex
+                            items-center
+                            justify-between
                             rounded-[12px]
-                            px-3 py-3
+                            px-3
+                            py-3
                             text-[10px]
                             font-bold
                             uppercase
                             tracking-[0.14em]
                             transition-colors
                             duration-200
+
                             ${
                               isActive
                                 ? "bg-[#b9eadc] text-black"
@@ -369,7 +429,13 @@ function Navbar() {
                         >
                           <span>Download history</span>
 
-                          <span className="transition-transform duration-200 group-hover:translate-x-1">
+                          <span
+                            className="
+                              transition-transform
+                              duration-200
+                              group-hover:translate-x-1
+                            "
+                          >
                             →
                           </span>
                         </NavLink>
