@@ -1,7 +1,8 @@
-function Container({ children, className = "" }) {
+function Container({ className = "", children, ...props }) {
   return (
     <div
-      className={`mx-auto w-full max-w-[1400px] px-5 sm:px-8 ${className}`}
+      className={`mx-auto w-full max-w-[var(--content-width)] px-6 md:px-8 ${className}`}
+      {...props}
     >
       {children}
     </div>

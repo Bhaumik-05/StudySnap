@@ -1,0 +1,30 @@
+function TextArea({ label, error, hint, id, className = "", ...props }) {
+  const areaId = id || props.name;
+  return (
+    <div className="flex flex-col gap-1.5">
+      {label && (
+        <label
+          htmlFor={areaId}
+          className="text-sm font-medium text-[var(--foreground)]"
+        >
+          {label}
+        </label>
+      )}
+      <textarea
+        id={areaId}
+        className={`w-full rounded-[var(--radius-sm)] border bg-[var(--surface)] px-3 py-2 text-sm outline-none transition-colors placeholder:text-[var(--muted-light)] focus:border-[var(--foreground)] ${
+          error ? "border-[var(--danger)]" : "border-[var(--border)]"
+        } ${className}`}
+        aria-invalid={Boolean(error)}
+        {...props}
+      />
+      {error ? (
+        <p className="text-xs text-[var(--danger)]">{error}</p>
+      ) : hint ? (
+        <p className="text-xs text-[var(--muted)]">{hint}</p>
+      ) : null}
+    </div>
+  );
+}
+
+export default TextArea;

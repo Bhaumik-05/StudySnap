@@ -1,57 +1,34 @@
-import { cn } from "../../lib/utils";
-
-const variants = {
+const VARIANTS = {
   primary:
-    "bg-black text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200",
-
-  secondary:
-    "border border-black/15 bg-transparent text-black hover:bg-black hover:text-white",
-
+    "bg-[var(--foreground)] text-white hover:opacity-90 disabled:opacity-50",
   accent:
-    "bg-[var(--accent)] text-[var(--accent-foreground)] hover:brightness-95",
-
+    "bg-[var(--accent)] text-[var(--accent-foreground)] hover:opacity-90 disabled:opacity-50",
+  outline:
+    "border border-[var(--border)] bg-transparent text-[var(--foreground)] hover:border-[var(--foreground)] disabled:opacity-50",
   ghost:
-    "text-black hover:bg-black/5",
-
+    "bg-transparent text-[var(--foreground)] hover:bg-[var(--surface-muted)] disabled:opacity-50",
   danger:
-    "bg-red-600 text-white hover:bg-red-700",
-};
-
-const sizes = {
-  sm: "min-h-9 px-4 text-xs",
-  md: "min-h-11 px-5 text-sm",
-  lg: "min-h-13 px-7 text-sm",
+    "bg-[var(--danger)] text-white hover:opacity-90 disabled:opacity-50",
 };
 
 function Button({
-  children,
+  as: Component = "button",
   variant = "primary",
-  size = "md",
+  loading = false,
   className = "",
-  type = "button",
-  disabled = false,
+  children,
+  disabled,
   ...props
 }) {
   return (
-    <button
-      type={type}
-      disabled={disabled}
-      className={cn(
-        "inline-flex items-center justify-center rounded-md font-semibold",
-        "transition-[background-color,color,border-color,transform,opacity]",
-        "duration-150",
-        "focus-visible:outline-2 focus-visible:outline-offset-2",
-        "focus-visible:outline-black",
-        "disabled:pointer-events-none disabled:opacity-50",
-        "active:translate-y-px",
-        variants[variant],
-        sizes[size],
-        className,
-      )}
+    <Component
+      className={`inline-flex items-center justify-center gap-2 rounded-[var(--radius-sm)] px-4 py-2.5 text-xs font-bold uppercase tracking-[0.1em] transition-colors ${VARIANTS[variant]} ${className}`}
+      disabled={disabled || loading}
       {...props}
     >
+      {loading && <span className="spinner" aria-hidden="true" />}
       {children}
-    </button>
+    </Component>
   );
 }
 
