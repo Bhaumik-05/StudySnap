@@ -40,15 +40,25 @@ function Notes() {
   useEffect(() => {
     fetchDepartments()
       .then((data) => setDepartments(data.departments || []))
-      .catch(() => {});
+      .catch(() => { });
     fetchSubjects()
       .then((data) => setSubjects(Array.isArray(data) ? data : []))
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   useEffect(() => {
-    setSearchInput(filters.search);
-  }, [filters.search]);
+    const timer = setTimeout(() => {
+      const currentSearch = filters.search || "";
+
+      if (searchInput === currentSearch) {
+        return;
+      }
+
+      updateFilter("search", searchInput.trim());
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   useEffect(() => {
     setLoading(true);
@@ -64,13 +74,17 @@ function Notes() {
 
   function updateFilter(key, value) {
     const next = new URLSearchParams(searchParams);
+
     if (value === "" || value === undefined) {
       next.delete(key);
     } else {
       next.set(key, value);
     }
-    // Any filter change resets pagination back to page 1.
-    if (key !== "page") next.delete("page");
+
+    if (key !== "page") {
+      next.delete("page");
+    }
+
     setSearchParams(next);
   }
 
@@ -99,83 +113,266 @@ function Notes() {
         </p>
       </div>
 
-      <div className="mt-6 grid gap-3 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-4 sm:grid-cols-2 lg:grid-cols-4">
-        <form
-          className="sm:col-span-2 lg:col-span-4"
-          onSubmit={(event) => {
-            event.preventDefault();
-            updateFilter("search", searchInput.trim());
-          }}
-        >
-          <Input
-            label="Search"
-            placeholder="Search by title or description"
-            value={searchInput}
-            onChange={(event) => setSearchInput(event.target.value)}
-          />
-        </form>
+      <div className="mt-8">
 
-        <Select
-          label="Department"
-          value={filters.deptId}
-          onChange={(event) => {
-            // Set deptId and clear subjectId in a single update — calling
-            // updateFilter twice here would have each call read the same
-            // stale searchParams snapshot and the second call would
-            // silently undo the first.
-            const next = new URLSearchParams(searchParams);
-            const value = event.target.value;
-            if (value) next.set("deptId", value);
-            else next.delete("deptId");
-            next.delete("subjectId");
-            next.delete("page");
-            setSearchParams(next);
-          }}
-        >
-          <option value="">All departments</option>
-          {departments.map((dept) => (
-            <option key={dept.deptId} value={dept.deptId}>
-              {dept.deptName}
-            </option>
-          ))}
-        </Select>
+        {/* Search */}
+        <section className="rounded-[30px] border border-[var(--border)] bg-white p-3 shadow-[0_14px_40px_rgba(0,0,0,0.045)]">
 
-        <Select
-          label="Subject"
-          value={filters.subjectId}
-          onChange={(event) => updateFilter("subjectId", event.target.value)}
-        >
-          <option value="">All subjects</option>
-          {subjectsForDept.map((subject) => (
-            <option key={subject.subjectId} value={subject.subjectId}>
-              {subject.subjectName}
-            </option>
-          ))}
-        </Select>
-
-        <Select
-          label="Semester"
-          value={filters.semester}
-          onChange={(event) => updateFilter("semester", event.target.value)}
-        >
-          <option value="">All semesters</option>
-          {SEMESTERS.map((sem) => (
-            <option key={sem} value={sem}>
-              Semester {sem}
-            </option>
-          ))}
-        </Select>
-
-        <div className="flex items-end">
-          <Button
-            variant="ghost"
-            type="button"
-            onClick={() => setSearchParams({})}
-            className="w-full"
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              updateFilter("search", searchInput.trim());
+            }}
+            className="flex flex-col gap-3 sm:flex-row sm:items-center"
           >
-            Clear filters
-          </Button>
-        </div>
+            {/* Search icon */}
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[20px] bg-[#b9eadc] text-black">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                className="h-5 w-5"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <circle cx="11" cy="11" r="6.5" />
+                <path
+                  d="m16 16 4 4"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </div>
+
+            {/* Search input */}
+            <div className="min-w-0 flex-1 px-1">
+              <label className="mb-1 block font-mono text-[9px] font-bold uppercase tracking-[0.22em] text-[var(--muted)]">
+                Search library
+              </label>
+
+              <input
+                type="text"
+                value={searchInput}
+                onChange={(event) => setSearchInput(event.target.value)}
+                placeholder="Search notes, subjects, topics..."
+                className="
+            w-full
+            border-0
+            bg-transparent
+            p-0
+            text-[17px]
+            font-medium
+            tracking-[-0.01em]
+            text-black
+            outline-none
+            placeholder:text-[#a2a29d]
+            focus:ring-0
+          "
+              />
+            </div>
+
+            {/* Active status */}
+            <div className="hidden shrink-0 items-center gap-2 pr-4 sm:flex">
+              <span
+                className={`h-2 w-2 rounded-full transition-colors duration-200 ${searchInput.trim()
+                    ? "bg-[#72c8b0]"
+                    : "bg-[#d7d7d2]"
+                  }`}
+              />
+
+              <span className="font-mono text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--muted)]">
+                {searchInput.trim() ? "Active" : "Browse all"}
+              </span>
+            </div>
+          </form>
+        </section>
+
+
+        {/* Filters */}
+        <section className="mt-5">
+
+          <div className="mb-3 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="font-mono text-[9px] font-bold uppercase tracking-[0.22em] text-[var(--muted)]">
+                Refine results
+              </span>
+
+              <span className="h-px w-8 bg-[var(--border)]" />
+            </div>
+
+            {(filters.semester ||
+              filters.deptId ||
+              filters.subjectId ||
+              filters.search) && (
+                <button
+                  type="button"
+                  onClick={() => setSearchParams({})}
+                  className="
+            font-mono
+            text-[9px]
+            font-bold
+            uppercase
+            tracking-[0.18em]
+            text-[var(--muted)]
+            transition-colors
+            duration-200
+            hover:text-black
+          "
+                >
+                  Clear all
+                </button>
+              )}
+          </div>
+
+
+          <div className="grid gap-3 md:grid-cols-3">
+
+            {/* Department */}
+            <div className="rounded-[22px] border border-[var(--border)] bg-white p-3 transition-shadow duration-200 hover:shadow-[0_8px_24px_rgba(0,0,0,0.04)]">
+
+              <label className="mb-2 block px-1 font-mono text-[9px] font-bold uppercase tracking-[0.2em] text-[var(--muted)]">
+                Department
+              </label>
+
+              <select
+                value={filters.deptId}
+                onChange={(event) => {
+                  const next = new URLSearchParams(searchParams);
+                  const value = event.target.value;
+
+                  if (value) {
+                    next.set("deptId", value);
+                  } else {
+                    next.delete("deptId");
+                  }
+
+                  next.delete("subjectId");
+                  next.delete("page");
+
+                  setSearchParams(next);
+                }}
+                className="
+            w-full
+            appearance-none
+            rounded-[15px]
+            border
+            border-[#e7e7e3]
+            bg-[#f7f7f4]
+            px-3
+            py-2.5
+            text-sm
+            font-medium
+            text-black
+            outline-none
+            transition
+            duration-200
+            focus:border-black
+            focus:bg-white
+          "
+              >
+                <option value="">All departments</option>
+
+                {departments.map((dept) => (
+                  <option
+                    key={dept.deptId}
+                    value={dept.deptId}
+                  >
+                    {dept.deptName}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+
+            {/* Subject */}
+            <div className="rounded-[22px] border border-[var(--border)] bg-white p-3 transition-shadow duration-200 hover:shadow-[0_8px_24px_rgba(0,0,0,0.04)]">
+
+              <label className="mb-2 block px-1 font-mono text-[9px] font-bold uppercase tracking-[0.2em] text-[var(--muted)]">
+                Subject
+              </label>
+
+              <select
+                value={filters.subjectId}
+                onChange={(event) =>
+                  updateFilter("subjectId", event.target.value)
+                }
+                className="
+            w-full
+            appearance-none
+            rounded-[15px]
+            border
+            border-[#e7e7e3]
+            bg-[#f7f7f4]
+            px-3
+            py-2.5
+            text-sm
+            font-medium
+            text-black
+            outline-none
+            transition
+            duration-200
+            focus:border-black
+            focus:bg-white
+          "
+              >
+                <option value="">All subjects</option>
+
+                {subjectsForDept.map((subject) => (
+                  <option
+                    key={subject.subjectId}
+                    value={subject.subjectId}
+                  >
+                    {subject.subjectName}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+
+            {/* Semester */}
+            <div className="rounded-[22px] border border-[var(--border)] bg-white p-3 transition-shadow duration-200 hover:shadow-[0_8px_24px_rgba(0,0,0,0.04)]">
+
+              <label className="mb-2 block px-1 font-mono text-[9px] font-bold uppercase tracking-[0.2em] text-[var(--muted)]">
+                Semester
+              </label>
+
+              <select
+                value={filters.semester}
+                onChange={(event) =>
+                  updateFilter("semester", event.target.value)
+                }
+                className="
+            w-full
+            appearance-none
+            rounded-[15px]
+            border
+            border-[#e7e7e3]
+            bg-[#f7f7f4]
+            px-3
+            py-2.5
+            text-sm
+            font-medium
+            text-black
+            outline-none
+            transition
+            duration-200
+            focus:border-black
+            focus:bg-white
+          "
+              >
+                <option value="">All semesters</option>
+
+                {SEMESTERS.map((sem) => (
+                  <option
+                    key={sem}
+                    value={sem}
+                  >
+                    Semester {sem}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+          </div>
+        </section>
       </div>
 
       <div className="mt-8">
