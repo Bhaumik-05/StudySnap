@@ -234,7 +234,19 @@ function Navbar() {
             >
               <span>Notes</span>
             </NavLink>
+            {/* ------------------------------------------------
+                  TAGGED NOTES
+              ------------------------------------------------ */}
 
+              {isAuthenticated &&
+                user?.role !== ROLES.ADMIN && (
+                  <NavLink
+                    to="/tagged"
+                    className={linkClass}
+                  >
+                    <span>Tagged</span>
+                  </NavLink>
+                )}
             {/* ------------------------------------------------
                 UPLOAD
             ------------------------------------------------ */}
