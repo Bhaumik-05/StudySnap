@@ -14,6 +14,15 @@ import { fetchSubjects } from "../../api/subjects";
 import { getErrorMessage } from "../../lib/api";
 import { SEMESTERS, SEARCH_PAGE_SIZE } from "../../lib/constants";
 
+const formatTitleCase = (value) => {
+  if (!value) return "";
+
+  return value
+    .toLowerCase()
+    .replace(/\b\w/g, (char) => char.toUpperCase())
+    .replace(/\bAi&Ml\b/i, "AI&ML");
+};
+
 function Notes() {
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -25,6 +34,7 @@ function Notes() {
     totalPages: 1,
     total: 0,
   });
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -76,12 +86,11 @@ function Notes() {
       limit: SEARCH_PAGE_SIZE,
     })
       .then((data) => {
-        const nextPagination =
-          data.pagination || {
-            page: 1,
-            totalPages: 1,
-            total: 0,
-          };
+        const nextPagination = data.pagination || {
+          page: 1,
+          totalPages: 1,
+          total: 0,
+        };
 
         const nextNotes = data.data || [];
 
@@ -327,7 +336,7 @@ function Notes() {
                     key={dept.deptId}
                     value={dept.deptId}
                   >
-                    {dept.deptName}
+                    {formatTitleCase(dept.deptName)}
                   </option>
                 ))}
               </select>
@@ -373,7 +382,7 @@ function Notes() {
                     key={subject.subjectId}
                     value={subject.subjectId}
                   >
-                    {subject.subjectName}
+                    {formatTitleCase(subject.subjectName)}
                   </option>
                 ))}
               </select>

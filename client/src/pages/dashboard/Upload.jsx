@@ -31,6 +31,20 @@ const INITIAL_FORM = {
   subjectId: "",
 };
 
+/* =========================================================
+   DISPLAY FORMATTER
+   Keeps database values unchanged
+========================================================= */
+
+const formatTitleCase = (value) => {
+  if (!value) return "";
+
+  return value
+    .toLowerCase()
+    .replace(/\b\w/g, (char) => char.toUpperCase())
+    .replace(/\bAi&Ml\b/i, "AI&ML");
+};
+
 function Upload() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -64,8 +78,8 @@ function Upload() {
 
   const subjectsForDept = form.deptId
     ? subjects.filter((s) =>
-      s.deptId.includes(Number(form.deptId))
-    )
+        s.deptId.includes(Number(form.deptId))
+      )
     : [];
 
   function setField(field) {
@@ -275,7 +289,7 @@ function Upload() {
                       key={dept.deptId}
                       value={dept.deptId}
                     >
-                      {dept.deptName}
+                      {formatTitleCase(dept.deptName)}
                     </option>
                   ))}
                 </Select>
@@ -298,7 +312,7 @@ function Upload() {
                       key={subject.subjectId}
                       value={subject.subjectId}
                     >
-                      {subject.subjectName}
+                      {formatTitleCase(subject.subjectName)}
                     </option>
                   ))}
                 </Select>
@@ -500,6 +514,7 @@ function Upload() {
                   <span className="text-sm font-semibold">
                     Concepts
                   </span>
+
                   <span className="font-mono text-[9px] text-[#777777]">
                     01
                   </span>
@@ -509,6 +524,7 @@ function Upload() {
                   <span className="text-sm font-semibold">
                     Examples
                   </span>
+
                   <span className="font-mono text-[9px] text-[#777777]">
                     02
                   </span>
@@ -518,6 +534,7 @@ function Upload() {
                   <span className="text-sm font-semibold">
                     Revision
                   </span>
+
                   <span className="font-mono text-[9px] text-[#777777]">
                     03
                   </span>
