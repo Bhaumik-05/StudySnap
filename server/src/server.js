@@ -12,7 +12,7 @@ const startServer = async () => {
     await redisClient.connect();
     console.log("Redis connected successfully");
 
-    app.listen(env.PORT, () => {
+    app.listen(env.PORT, "0.0.0.0", () => {
       console.log(`Server running on port ${env.PORT}`);
     });
 

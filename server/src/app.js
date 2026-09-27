@@ -10,11 +10,13 @@ import cookieParser from "cookie-parser";
 import downloadHistoryRoutes from "./routes/downloadHistoryRoutes.js"
 import adminRoutes from "./routes/AdminRoutes.js";
 import dashboardRoutes from "./routes/DashboardRoutes.js";
+import env from "./config/env.js";
+
 const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: env.FRONTEND_URL,
     credentials: true,
   }),
 );
