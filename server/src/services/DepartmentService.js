@@ -1,5 +1,7 @@
 import Department from "../models/Department.js";
 import { generateDepartmentId } from "../utils/departmentIdGenerator.js";
+import User from "../models/User.js";
+import Note from "../models/Note.js";
 
 export const createDepartmentService = async (deptName) => {
 
@@ -34,7 +36,81 @@ export const createDepartmentService = async (deptName) => {
 };
 
 export const getDepartmentsService = async () => {
-    return (await Department.find()).toSorted((a, b) => a.deptId - b.deptId);
+    const [departments, userCounts, approvedNoteCounts] =
+        await Promise.all([
+            Department.find().lean(),
+
+            // Count users in each department
+            User.aggregate([
+                {
+                    $match: {
+                        deptId: {
+                            $exists: true,
+                            $ne: null
+                        }
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$deptId",
+                        count: {
+                            $sum: 1
+                        }
+                    }
+                }
+            ]),
+
+            // Count approved notes in each department
+            Note.aggregate([
+                {
+                    $match: {
+                        status: "approved"
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$deptId",
+                        count: {
+                            $sum: 1
+                        }
+                    }
+                }
+            ])
+        ]);
+
+    // Convert user counts into:
+    // deptId -> count
+    const userCountMap = new Map(
+        userCounts.map((item) => [
+            item._id,
+            item.count
+        ])
+    );
+
+    // Convert approved note counts into:
+    // deptId -> count
+    const approvedNoteCountMap = new Map(
+        approvedNoteCounts.map((item) => [
+            item._id,
+            item.count
+        ])
+    );
+
+    // Add counts to every department
+    return departments
+        .map((department) => ({
+            ...department,
+
+            userCount:
+                userCountMap.get(department.deptId) || 0,
+
+            approvedNotesCount:
+                approvedNoteCountMap.get(department.deptId) || 0
+        }))
+        .sort(
+            (a, b) =>
+                a.deptId - b.deptId
+        );
 };
 
 export const updateDepartmentService = async (deptId, deptName) => {
