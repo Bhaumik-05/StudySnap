@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useState,
+  useRef,
 } from "react";
 
 import { loginUser, logoutUser, refreshAccessToken } from "../api/auth";
@@ -13,6 +14,7 @@ import { setAccessToken, clearAccessToken } from "../lib/api";
 const AuthContext = createContext(null);
 
 function AuthProvider({ children }) {
+  const restoreStarted = useRef(false);
   const [user, setUser] = useState(null);
   // isLoading: true while we attempt to silently restore a session on
   // first load (via the refresh-token cookie).
@@ -56,25 +58,68 @@ function AuthProvider({ children }) {
     setUser(updatedUser);
   }, []);
 
+  // const restoreSession = useCallback(async () => {
+  //   try {
+  //     const refreshResponse = await refreshAccessToken();
+  //     const newToken = refreshResponse.data.accessToken;
+  //     setAccessToken(newToken);
+
+  //     const profileResponse = await getCurrentUser();
+  //     applySession(newToken, profileResponse.data);
+  //   } catch {
+  //     clearSession();
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // }, [applySession, clearSession]);
+
+
   const restoreSession = useCallback(async () => {
-    try {
-      const refreshResponse = await refreshAccessToken();
-      const newToken = refreshResponse.data.accessToken;
-      setAccessToken(newToken);
+  try {
+    const refreshResponse = await refreshAccessToken();
 
-      const profileResponse = await getCurrentUser();
-      applySession(newToken, profileResponse.data);
-    } catch {
-      clearSession();
-    } finally {
-      setIsLoading(false);
+    const newToken = refreshResponse?.data?.accessToken;
+
+    if (!newToken) {
+      throw new Error("No access token received during session restoration");
     }
-  }, [applySession, clearSession]);
 
+    // Restore the access token immediately.
+    setAccessToken(newToken);
+
+    // Now use the restored token to fetch the logged-in user.
+    const profileResponse = await getCurrentUser();
+
+    const loggedInUser = profileResponse?.data;
+
+    if (!loggedInUser) {
+      throw new Error("Unable to restore user profile");
+    }
+
+    setUser(loggedInUser);
+    setIsAuthed(true);
+  } catch (error) {
+    console.error("Session restoration failed:", error);
+    clearSession();
+  } finally {
+    setIsLoading(false);
+  }
+}, [clearSession]);
+
+  // useEffect(() => {
+  //   restoreSession();
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
+  
   useEffect(() => {
-    restoreSession();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  if (restoreStarted.current) {
+    return;
+  }
+
+  restoreStarted.current = true;
+  restoreSession();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
 
   const value = {
     user,

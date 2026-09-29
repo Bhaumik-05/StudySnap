@@ -215,17 +215,6 @@ function Navbar() {
               )}
 
             {/* ------------------------------------------------
-                DEPARTMENTS
-            ------------------------------------------------ */}
-
-            <NavLink
-              to="/departments"
-              className={linkClass}
-            >
-              <span>Departments</span>
-            </NavLink>
-
-            {/* ------------------------------------------------
                 NOTES
             ------------------------------------------------ */}
 
@@ -495,39 +484,45 @@ function Navbar() {
                 type="button"
                 onClick={handleLogout}
                 disabled={loggingOut}
+                aria-label="Log out"
+                title="Log out"
                 className="
-                  group
-                  ml-6
+                  ml-5
                   flex
+                  h-14
+                  w-14
+                  shrink-0
                   items-center
-                  gap-2
-                  border-l
-                  border-[var(--border)]
-                  pl-6
-                  text-[10px]
-                  font-bold
-                  uppercase
-                  tracking-[0.16em]
-                  text-[var(--muted)]
-                  transition-colors
+                  justify-center
+                  rounded-[20px]
+                  bg-[#b9eadc]
+                  text-black
+                  transition-all
                   duration-200
-                  hover:text-[var(--foreground)]
+                  hover:scale-[1.03]
+                  hover:bg-[#a9e2d3]
+                  active:scale-[0.97]
+                  disabled:cursor-not-allowed
                   disabled:opacity-50
                 "
               >
-                <span>
-                  {loggingOut ? "Leaving…" : "Log out"}
-                </span>
-
-                <span
-                  className="
-                    transition-transform
-                    duration-300
-                    group-hover:translate-x-1
-                  "
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="25"
+                  height="25"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
                 >
-                  →
-                </span>
+                  <path d="M10 17l5-5-5-5" />
+                  <path d="M15 12H3" />
+                  <path d="M21 19V5a2 2 0 0 0-2-2h-6" />
+                  <path d="M13 21h6a2 2 0 0 0 2-2" />
+                </svg>
               </button>
             </div>
           ) : (
@@ -750,18 +745,6 @@ function Navbar() {
                   </NavLink>
                 )}
 
-              {/* Departments */}
-
-              <NavLink
-                to="/departments"
-                className={mobileLinkClass}
-                onClick={closeMenu}
-              >
-                <span>Departments</span>
-
-                <span>→</span>
-              </NavLink>
-
               {/* Notes */}
 
               <NavLink
@@ -774,32 +757,66 @@ function Navbar() {
                 <span>→</span>
               </NavLink>
 
+              {/* Tagged */}
+
+              {isAuthenticated &&
+                user?.role !== ROLES.ADMIN && (
+                  <NavLink
+                    to="/tagged"
+                    className={mobileLinkClass}
+                    onClick={closeMenu}
+                  >
+                    <span>Tagged</span>
+
+                    <span>→</span>
+                  </NavLink>
+                )}
+
               {/* Upload */}
 
               {isAuthenticated &&
                 user?.role !== ROLES.ADMIN && (
-                  <>
-                    <NavLink
-                      to="/uploads"
-                      className={mobileLinkClass}
-                      onClick={closeMenu}
-                    >
-                      <span>Upload history</span>
+                  <NavLink
+                    to="/upload"
+                    className={mobileLinkClass}
+                    onClick={closeMenu}
+                  >
+                    <span>Upload</span>
 
-                      <span>→</span>
-                    </NavLink>
-
-                    <NavLink
-                      to="/download-history"
-                      className={mobileLinkClass}
-                      onClick={closeMenu}
-                    >
-                      <span>Download history</span>
-
-                      <span>→</span>
-                    </NavLink>
-                  </>
+                    <span>→</span>
+                  </NavLink>
                 )}
+
+              {/* Upload History */}
+
+              {isAuthenticated &&
+                user?.role !== ROLES.ADMIN && (
+                  <NavLink
+                    to="/uploads"
+                    className={mobileLinkClass}
+                    onClick={closeMenu}
+                  >
+                    <span>Upload history</span>
+
+                    <span>→</span>
+                  </NavLink>
+                )}
+
+              {/* Download History */}
+
+              {isAuthenticated &&
+                user?.role !== ROLES.ADMIN && (
+                  <NavLink
+                    to="/download-history"
+                    className={mobileLinkClass}
+                    onClick={closeMenu}
+                  >
+                    <span>Download history</span>
+
+                    <span>→</span>
+                  </NavLink>
+                )}
+
             </nav>
 
             {/* =================================================
@@ -822,34 +839,44 @@ function Navbar() {
                   type="button"
                   onClick={handleLogout}
                   disabled={loggingOut}
+                  aria-label="Log out"
+                  title="Log out"
                   className="
-                    group
                     flex
+                    h-14
+                    w-14
+                    shrink-0
                     items-center
-                    gap-3
-                    text-[10px]
-                    font-bold
-                    uppercase
-                    tracking-[0.16em]
-                    text-[var(--foreground)]
+                    justify-center
+                    rounded-[20px]
+                    bg-[#b9eadc]
+                    text-black
+                    transition-all
+                    duration-200
+                    hover:scale-[1.03]
+                    hover:bg-[#a9e2d3]
+                    active:scale-[0.97]
+                    disabled:cursor-not-allowed
                     disabled:opacity-50
                   "
                 >
-                  <span>
-                    {loggingOut
-                      ? "Leaving…"
-                      : "Log out"}
-                  </span>
-
-                  <span
-                    className="
-                      transition-transform
-                      duration-300
-                      group-hover:translate-x-1
-                    "
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="25"
+                    height="25"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
                   >
-                    →
-                  </span>
+                    <path d="M10 17l5-5-5-5" />
+                    <path d="M15 12H3" />
+                    <path d="M21 19V5a2 2 0 0 0-2-2h-6" />
+                    <path d="M13 21h6a2 2 0 0 0 2-2" />
+                  </svg>
                 </button>
               ) : (
                 <>
