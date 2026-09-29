@@ -6,6 +6,7 @@ import Button from "../../components/ui/Button";
 import Alert from "../../components/ui/Alert";
 import { useAuth } from "../../context/AuthContext";
 import { updateCurrentUser } from "../../api/users";
+import { fetchDepartments } from "../../api/departments";
 import { getErrorMessage } from "../../lib/api";
 import { ROLES, SEMESTERS } from "../../lib/constants";
 import {
@@ -16,30 +17,91 @@ import {
 } from "../../lib/validators";
 import { roleLabel } from "../../lib/format";
 
+// =========================================================
+// TITLE CASE
+// =========================================================
+function formatTitleCase(value) {
+  if (!value) return "—";
+
+  return value
+    .toLowerCase()
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
 function Profile() {
   const { user, updateUser } = useAuth();
 
   const [name, setName] = useState(user?.name || "");
   const [mobile, setMobile] = useState(user?.mobile || "");
   const [sem, setSem] = useState(user?.sem ? String(user.sem) : "");
+
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  // =========================================================
+  // DEPARTMENTS
+  // =========================================================
+  const [departments, setDepartments] = useState([]);
 
   const [errors, setErrors] = useState({});
   const [submitError, setSubmitError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  // =========================================================
+  // LOAD DEPARTMENTS
+  // =========================================================
+  useEffect(() => {
+    async function loadDepartments() {
+      try {
+        const response = await fetchDepartments();
+
+        const departmentList = Array.isArray(response)
+          ? response
+          : Array.isArray(response?.departments)
+            ? response.departments
+            : Array.isArray(response?.data)
+              ? response.data
+              : [];
+
+        setDepartments(departmentList);
+      } catch (error) {
+        console.error("Could not load departments:", error);
+        setDepartments([]);
+      }
+    }
+
+    loadDepartments();
+  }, []);
+
+  // =========================================================
+  // UPDATE FORM WHEN USER CHANGES
+  // =========================================================
   useEffect(() => {
     setName(user?.name || "");
     setMobile(user?.mobile || "");
     setSem(user?.sem ? String(user.sem) : "");
   }, [user]);
 
+  // =========================================================
+  // GET DEPARTMENT NAME FROM DEPARTMENT ID
+  // =========================================================
+  const departmentName = formatTitleCase(
+    departments.find(
+      (department) =>
+        String(department.deptId) === String(user?.deptId)
+    )?.deptName
+  );
+
+  // =========================================================
+  // BUILD CHANGES
+  // =========================================================
   function buildChanges() {
     const changes = {};
 
-    if (name.trim() !== user.name) changes.name = name.trim();
+    if (name.trim() !== user.name) {
+      changes.name = name.trim();
+    }
 
     if (mobile.trim() !== (user.mobile || "")) {
       changes.mobile = mobile.trim();
@@ -53,17 +115,25 @@ function Profile() {
       changes.sem = Number(sem);
     }
 
-    if (password) changes.password = password;
+    if (password) {
+      changes.password = password;
+    }
 
     return changes;
   }
 
+  // =========================================================
+  // VALIDATE
+  // =========================================================
   function validate(changes) {
     const nextErrors = {};
 
     if ("name" in changes) {
       const err = validateName(changes.name);
-      if (err) nextErrors.name = err;
+
+      if (err) {
+        nextErrors.name = err;
+      }
     }
 
     if ("mobile" in changes && changes.mobile) {
@@ -71,7 +141,9 @@ function Profile() {
         required: false,
       });
 
-      if (err) nextErrors.mobile = err;
+      if (err) {
+        nextErrors.mobile = err;
+      }
     }
 
     if ("sem" in changes) {
@@ -79,7 +151,9 @@ function Profile() {
         required: true,
       });
 
-      if (err) nextErrors.sem = err;
+      if (err) {
+        nextErrors.sem = err;
+      }
     }
 
     if ("password" in changes) {
@@ -97,8 +171,12 @@ function Profile() {
     return Object.keys(nextErrors).length === 0;
   }
 
+  // =========================================================
+  // SUBMIT
+  // =========================================================
   async function handleSubmit(event) {
     event.preventDefault();
+
     setSubmitError("");
     setSuccessMessage("");
 
@@ -109,7 +187,9 @@ function Profile() {
       return;
     }
 
-    if (!validate(changes)) return;
+    if (!validate(changes)) {
+      return;
+    }
 
     setSubmitting(true);
 
@@ -120,26 +200,28 @@ function Profile() {
 
       setPassword("");
       setConfirmPassword("");
+      setErrors({});
 
       setSuccessMessage("Profile updated successfully.");
     } catch (error) {
       setSubmitError(
-        getErrorMessage(error, "Could not update profile."),
+        getErrorMessage(error, "Could not update profile.")
       );
     } finally {
       setSubmitting(false);
     }
   }
 
-  if (!user) return null;
+  if (!user) {
+    return null;
+  }
 
   return (
     <Container className="py-8 sm:py-12">
-      {/* =========================================================
+      {/* =====================================================
           HEADER
-          ========================================================= */}
+          ===================================================== */}
       <header className="relative overflow-hidden border-b border-[var(--border)] pb-10">
-        {/* Large editorial number */}
         <div
           className="
             pointer-events-none
@@ -158,7 +240,6 @@ function Profile() {
         </div>
 
         <div className="relative">
-          {/* Top metadata */}
           <div className="flex flex-wrap items-center justify-between gap-4">
             <span
               className="
@@ -187,7 +268,6 @@ function Profile() {
             </span>
           </div>
 
-          {/* Main heading */}
           <div className="mt-12 max-w-5xl">
             <span
               className="
@@ -231,16 +311,15 @@ function Profile() {
         </div>
       </header>
 
-      {/* =========================================================
+      {/* =====================================================
           PROFILE AREA
-          ========================================================= */}
+          ===================================================== */}
       <div className="grid gap-14 py-12 lg:grid-cols-[280px_minmax(0,1fr)]">
-        {/* =======================================================
+        {/* ===================================================
             LEFT INFORMATION COLUMN
-            ======================================================= */}
+            =================================================== */}
         <aside>
           <div className="lg:sticky lg:top-8">
-            {/* Section label */}
             <div className="flex items-center gap-3">
               <span
                 className="
@@ -270,7 +349,6 @@ function Profile() {
               </span>
             </div>
 
-            {/* Description */}
             <div className="mt-6 border-t border-[var(--foreground)] pt-5">
               <h2
                 className="
@@ -351,19 +429,16 @@ function Profile() {
               </span>
 
               <p className="mt-2 text-sm font-semibold">
-                {user.deptId
-                  ? `Department #${user.deptId}`
-                  : "—"}
+                {departmentName}
               </p>
             </div>
           </div>
         </aside>
 
-        {/* =======================================================
+        {/* ===================================================
             FORM
-            ======================================================= */}
+            =================================================== */}
         <main>
-          {/* Form heading */}
           <div className="border-t border-[var(--foreground)] pt-6">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
@@ -413,9 +488,9 @@ function Profile() {
             onSubmit={handleSubmit}
             noValidate
           >
-            {/* ===================================================
+            {/* =================================================
                 MESSAGES
-                =================================================== */}
+                ================================================= */}
             {(submitError || successMessage) && (
               <div className="mb-8">
                 {submitError && (
@@ -432,9 +507,9 @@ function Profile() {
               </div>
             )}
 
-            {/* ===================================================
+            {/* =================================================
                 EMAIL
-                =================================================== */}
+                ================================================= */}
             <div className="border-b border-[var(--border)] py-7">
               <Input
                 label="Email"
@@ -444,9 +519,9 @@ function Profile() {
               />
             </div>
 
-            {/* ===================================================
+            {/* =================================================
                 FULL NAME
-                =================================================== */}
+                ================================================= */}
             <div className="border-b border-[var(--border)] py-7">
               <Input
                 label="Full name"
@@ -458,9 +533,9 @@ function Profile() {
               />
             </div>
 
-            {/* ===================================================
+            {/* =================================================
                 MOBILE
-                =================================================== */}
+                ================================================= */}
             <div className="border-b border-[var(--border)] py-7">
               <Input
                 label="Mobile number"
@@ -473,25 +548,21 @@ function Profile() {
               />
             </div>
 
-            {/* ===================================================
+            {/* =================================================
                 DEPARTMENT
-                =================================================== */}
+                ================================================= */}
             <div className="border-b border-[var(--border)] py-7">
               <Input
                 label="Department"
-                value={
-                  user.deptId
-                    ? `Department #${user.deptId}`
-                    : "—"
-                }
+                value={departmentName}
                 disabled
                 hint="Contact an administrator to change your department."
               />
             </div>
 
-            {/* ===================================================
+            {/* =================================================
                 SEMESTER
-                =================================================== */}
+                ================================================= */}
             {user.role === ROLES.STUDENT && (
               <div className="border-b border-[var(--border)] py-7">
                 <Select
@@ -502,18 +573,21 @@ function Profile() {
                   }
                   error={errors.sem}
                 >
-                  {SEMESTERS.map((s) => (
-                    <option key={s} value={s}>
-                      Semester {s}
+                  {SEMESTERS.map((semester) => (
+                    <option
+                      key={semester}
+                      value={semester}
+                    >
+                      Semester {semester}
                     </option>
                   ))}
                 </Select>
               </div>
             )}
 
-            {/* ===================================================
+            {/* =================================================
                 PASSWORD
-                =================================================== */}
+                ================================================= */}
             <div className="border-b border-[var(--border)] py-8">
               <div className="mb-6">
                 <span
@@ -580,9 +654,9 @@ function Profile() {
               </div>
             </div>
 
-            {/* ===================================================
-                SAVE AREA
-                =================================================== */}
+            {/* =================================================
+                SAVE
+                ================================================= */}
             <div
               className="
                 mt-8
@@ -644,9 +718,9 @@ function Profile() {
         </main>
       </div>
 
-      {/* =========================================================
+      {/* =====================================================
           FOOTER
-          ========================================================= */}
+          ===================================================== */}
       <footer
         className="
           flex
