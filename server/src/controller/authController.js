@@ -21,10 +21,12 @@ const login = async (req, res, next) => {
     const result = await authService.loginUser(email, password);
 
     // Store refresh token in HTTP-only cookie
+    const isProduction = process.env.NODE_ENV === "production";
+
     res.cookie("refreshToken", result.refreshToken, {
       httpOnly: true,
-      secure: false, // true in production with HTTPS
-      sameSite: "lax",
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
     });
 
     // we should change this during production 
@@ -63,10 +65,12 @@ const logout = async (req, res, next) => {
     );
 
     // Remove refresh token cookie
+    const isProduction = process.env.NODE_ENV === "production";
+
     res.clearCookie("refreshToken", {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
     });
 
     return res.status(200).json({
