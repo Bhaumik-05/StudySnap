@@ -215,6 +215,20 @@ function Navbar() {
               )}
 
             {/* ------------------------------------------------
+                DEPARTMENTS
+            ------------------------------------------------ */}
+
+            {isAuthenticated &&
+              user?.role === ROLES.ADMIN && (
+                <NavLink
+                  to="/departments"
+                  className={linkClass}
+                >
+                  <span>Departments</span>
+                </NavLink>
+              )}
+
+            {/* ------------------------------------------------
                 NOTES
             ------------------------------------------------ */}
 
@@ -740,6 +754,21 @@ function Navbar() {
                     onClick={closeMenu}
                   >
                     <span>Admin</span>
+
+                    <span>→</span>
+                  </NavLink>
+                )}
+
+              {/* Departments */}
+
+              {isAuthenticated &&
+                user?.role === ROLES.ADMIN && (
+                  <NavLink
+                    to="/departments"
+                    className={mobileLinkClass}
+                    onClick={closeMenu}
+                  >
+                    <span>Departments</span>
 
                     <span>→</span>
                   </NavLink>
