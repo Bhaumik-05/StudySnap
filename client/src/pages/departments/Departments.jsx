@@ -492,16 +492,25 @@ function Departments() {
 
                   return (
                     <DepartmentCard
-                      key={deptId}
-                      department={
-                        department
-                      }
+                      key={department.deptId}
+                      department={department}
                       isAdmin={isAdmin}
-                      onEdit={
-                        startEdit
+                      onEdit={startEdit}
+                      onDelete={handleDelete}
+                      isEditing={
+                        editingId === department.deptId
                       }
-                      onDelete={
-                        handleDelete
+                      editValue={editValue}
+                      onEditChange={setEditValue}
+                      onSave={handleSaveEdit}
+                      onCancel={cancelEdit}
+                      isSaving={
+                        savingId === department.deptId
+                      }
+                      editError={
+                        editingId === department.deptId
+                          ? editError
+                          : ""
                       }
                     />
                   );

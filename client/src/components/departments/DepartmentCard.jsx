@@ -3,6 +3,15 @@ function DepartmentCard({
     isAdmin,
     onEdit,
     onDelete,
+
+    // CHANGE: Edit state and handlers
+    isEditing,
+    editValue,
+    onEditChange,
+    onSave,
+    onCancel,
+    isSaving,
+    editError,
 }) {
     const departmentName = (
         department.deptName ||
@@ -240,104 +249,265 @@ function DepartmentCard({
             <div
                 className="
                     mt-8
-                    flex
-                    items-end
-                    justify-between
-                    gap-4
                     border-t
                     border-[var(--border)]
                     pt-4
                 "
             >
-                <span
-                    className="
-                        font-mono
-                        text-[8px]
-                        font-bold
-                        uppercase
-                        tracking-[0.18em]
-                        text-[var(--muted-light)]
-                    "
-                >
-                    StudySnap / Academic
-                </span>
-
                 {isAdmin ? (
-                    <div className="flex items-center gap-4">
-                        {/* Rename */}
-                        <button
-                            type="button"
-                            onClick={() =>
-                                onEdit(department)
-                            }
-                            className="
-                                font-mono
-                                text-[9px]
-                                font-bold
-                                uppercase
-                                tracking-[0.14em]
-                                text-[var(--muted)]
-                                transition-all
-                                duration-200
-                                hover:translate-x-0.5
-                                hover:text-[var(--foreground)]
-                            "
-                        >
-                            Rename
-                        </button>
+                    isEditing ? (
+                        /* =====================================
+                           EDIT MODE
+                        ===================================== */
+                        <div className="w-full">
+                            <span
+                                className="
+                                    font-mono
+                                    text-[8px]
+                                    font-bold
+                                    uppercase
+                                    tracking-[0.18em]
+                                    text-[var(--muted-light)]
+                                "
+                            >
+                                Rename department
+                            </span>
 
-                        {/* Delete */}
-                        <button
-                            type="button"
-                            onClick={() =>
-                                onDelete(department.deptId)
-                            }
+                            <input
+                                type="text"
+                                value={editValue}
+                                onChange={(event) =>
+                                    onEditChange(
+                                        event.target.value
+                                    )
+                                }
+                                autoFocus
+                                disabled={isSaving}
+                                className="
+                                    mt-3
+                                    w-full
+                                    border
+                                    border-[var(--border)]
+                                    bg-[var(--background)]
+                                    px-3
+                                    py-2.5
+                                    font-mono
+                                    text-xs
+                                    text-[var(--foreground)]
+                                    outline-none
+                                    transition-colors
+                                    focus:border-[var(--foreground)]
+                                    disabled:cursor-not-allowed
+                                    disabled:opacity-60
+                                "
+                                placeholder="Department name"
+                            />
+
+                            {editError && (
+                                <p
+                                    className="
+                                        mt-2
+                                        font-mono
+                                        text-[9px]
+                                        text-[var(--danger)]
+                                    "
+                                >
+                                    {editError}
+                                </p>
+                            )}
+
+                            <div
+                                className="
+                                    mt-4
+                                    flex
+                                    items-center
+                                    justify-end
+                                    gap-4
+                                "
+                            >
+                                {/* Cancel */}
+                                <button
+                                    type="button"
+                                    onClick={onCancel}
+                                    disabled={isSaving}
+                                    className="
+                                        font-mono
+                                        text-[9px]
+                                        font-bold
+                                        uppercase
+                                        tracking-[0.14em]
+                                        text-[var(--muted)]
+                                        transition-all
+                                        duration-200
+                                        hover:text-[var(--foreground)]
+                                        disabled:cursor-not-allowed
+                                        disabled:opacity-50
+                                    "
+                                >
+                                    Cancel
+                                </button>
+
+                                {/* Save */}
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        onSave(
+                                            department.deptId
+                                        )
+                                    }
+                                    disabled={
+                                        isSaving ||
+                                        !editValue.trim()
+                                    }
+                                    className="
+                                        font-mono
+                                        text-[9px]
+                                        font-bold
+                                        uppercase
+                                        tracking-[0.14em]
+                                        text-[var(--foreground)]
+                                        transition-all
+                                        duration-200
+                                        hover:translate-x-0.5
+                                        disabled:cursor-not-allowed
+                                        disabled:opacity-50
+                                    "
+                                >
+                                    {isSaving
+                                        ? "Saving..."
+                                        : "Save"}
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        /* =====================================
+                           NORMAL ADMIN MODE
+                        ===================================== */
+                        <div
                             className="
-                                font-mono
-                                text-[9px]
-                                font-bold
-                                uppercase
-                                tracking-[0.14em]
-                                text-[var(--danger)]
-                                transition-all
-                                duration-200
-                                hover:translate-x-0.5
-                                hover:opacity-70
+                                flex
+                                items-end
+                                justify-between
+                                gap-4
                             "
                         >
-                            Delete
-                        </button>
-                    </div>
+                            <span
+                                className="
+                                    font-mono
+                                    text-[8px]
+                                    font-bold
+                                    uppercase
+                                    tracking-[0.18em]
+                                    text-[var(--muted-light)]
+                                "
+                            >
+                                StudySnap / Academic
+                            </span>
+
+                            <div className="flex items-center gap-4">
+                                {/* Rename */}
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        onEdit(department)
+                                    }
+                                    className="
+                                        font-mono
+                                        text-[9px]
+                                        font-bold
+                                        uppercase
+                                        tracking-[0.14em]
+                                        text-[var(--muted)]
+                                        transition-all
+                                        duration-200
+                                        hover:translate-x-0.5
+                                        hover:text-[var(--foreground)]
+                                    "
+                                >
+                                    Rename
+                                </button>
+
+                                {/* Delete */}
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        onDelete(
+                                            department.deptId
+                                        )
+                                    }
+                                    className="
+                                        font-mono
+                                        text-[9px]
+                                        font-bold
+                                        uppercase
+                                        tracking-[0.14em]
+                                        text-[var(--danger)]
+                                        transition-all
+                                        duration-200
+                                        hover:translate-x-0.5
+                                        hover:opacity-70
+                                    "
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    )
                 ) : (
-                    <span
+                    /* =====================================
+                       NORMAL USER MODE
+                    ===================================== */
+                    <div
                         className="
                             flex
-                            h-9
-                            w-9
-                            items-center
-                            justify-center
-                            rounded-full
-                            border
-                            border-[var(--border)]
-                            text-sm
-                            text-[var(--foreground)]
-                            transition-all
-                            duration-300
-                            group-hover:bg-[var(--foreground)]
-                            group-hover:text-[var(--background)]
+                            items-end
+                            justify-between
+                            gap-4
                         "
                     >
                         <span
                             className="
-                                inline-block
-                                transition-transform
-                                duration-300
-                                group-hover:translate-x-0.5
+                                font-mono
+                                text-[8px]
+                                font-bold
+                                uppercase
+                                tracking-[0.18em]
+                                text-[var(--muted-light)]
                             "
                         >
-                            ↗
+                            StudySnap / Academic
                         </span>
-                    </span>
+
+                        <span
+                            className="
+                                flex
+                                h-9
+                                w-9
+                                items-center
+                                justify-center
+                                rounded-full
+                                border
+                                border-[var(--border)]
+                                text-sm
+                                text-[var(--foreground)]
+                                transition-all
+                                duration-300
+                                group-hover:bg-[var(--foreground)]
+                                group-hover:text-[var(--background)]
+                            "
+                        >
+                            <span
+                                className="
+                                    inline-block
+                                    transition-transform
+                                    duration-300
+                                    group-hover:translate-x-0.5
+                                "
+                            >
+                                ↗
+                            </span>
+                        </span>
+                    </div>
                 )}
             </div>
 
