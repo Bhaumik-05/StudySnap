@@ -68,10 +68,12 @@ export const createNoteService = async ({
 
     // 2. Generate noteId
 
-    const noteId = await generateNoteId();
+    //  const noteId = await generateNoteId();
 
     // 4. Create Note
     try {
+        
+        const noteId = await generateNoteId();
         const note = await Note.create({
             noteId,
 
@@ -122,7 +124,7 @@ export const createNoteService = async ({
             await cloudinary.uploader.destroy(
                 cloudinaryResult.public_id,
                 {
-                    resource_type: "raw"
+                    resource_type: "image"
                 }
             );
         } catch (cleanupError) {

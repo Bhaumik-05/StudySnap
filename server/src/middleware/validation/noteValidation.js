@@ -26,10 +26,10 @@ export const validateNote = (req, res, next) => {
         });
     }
 
-    if (normalizedTitle.length < 2 || normalizedTitle.length > 150) {
+    if (normalizedTitle.length < 3 || normalizedTitle.length > 100) {
         return res.status(400).json({
             success: false,
-            message: "Title must be between 2 and 150 characters"
+            message: "Title must be between 3 and 100 characters"
         });
     }
 
